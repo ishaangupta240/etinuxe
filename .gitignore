@@ -1,0 +1,16 @@
+# Python venv
+backend/venv/
+
+# Node modules
+frontend/node_modules/
+
+# React build output
+frontend/build/
+frontend/dist/
+
+# Environment files
+*.env
+
+# OS junk
+.DS_Store
+Thumbs.db

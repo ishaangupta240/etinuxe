@@ -1,0 +1,85 @@
+.admin-pricing {
+  gap: 24px;
+}
+
+.admin-pricing__header {
+  align-items: center;
+}
+
+.admin-pricing__panel {
+  gap: 20px;
+}
+
+.admin-pricing__alert {
+  margin: 0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+}
+
+.admin-pricing__alert--error {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.admin-pricing__form {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-pricing__card {
+  border: 1px solid var(--outline);
+  border-radius: 18px;
+  padding: 24px;
+  background: rgba(42, 92, 188, 0.14);
+  display: grid;
+  gap: 12px;
+}
+
+.admin-pricing__grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.admin-pricing__helper {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.admin-pricing__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.admin-pricing__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text-secondary);
+}
+
+.admin-pricing__field-label {
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+}
+
+.admin-pricing__input {
+  background: rgba(42, 92, 188, 0.18);
+  border: 1px solid var(--outline);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.admin-pricing__input:focus {
+  outline: 2px solid var(--accent);
+}
+
+@media (max-width: 720px) {
+  .admin-pricing__card {
+    padding: 20px;
+  }
+}

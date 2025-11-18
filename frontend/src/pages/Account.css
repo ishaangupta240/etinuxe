@@ -1,0 +1,136 @@
+.account {
+  display: grid;
+  gap: 28px;
+}
+
+.account__header {
+  display: grid;
+  gap: 16px;
+  padding: 32px;
+  border-radius: 18px;
+}
+
+.account__intro {
+  display: grid;
+  gap: 6px;
+}
+
+.account__intro-title {
+  margin: 0;
+}
+
+.account__status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.account__action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.account__error {
+  border-radius: 12px;
+  border: 1px solid var(--danger);
+  background: rgba(255, 112, 142, 0.16);
+  padding: 10px 14px;
+  color: var(--danger);
+}
+
+.account__grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  align-items: start;
+}
+
+.account__panel {
+  display: grid;
+  gap: 18px;
+  padding: 32px;
+  border-radius: 18px;
+}
+
+.account__panel--compact {
+  gap: 16px;
+}
+
+.account__panel-header {
+  display: grid;
+  gap: 6px;
+}
+
+.account__panel-title {
+  margin: 0;
+}
+
+.account__info-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.account__info-item {
+  border-radius: 12px;
+  border: 1px solid var(--outline);
+  padding: 10px 12px;
+  background: rgba(42, 92, 188, 0.1);
+  display: grid;
+  gap: 4px;
+}
+
+.account__stat-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.account__stat-grid--compact {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.account__last-memory {
+  border-radius: 12px;
+  border: 1px solid var(--outline);
+  padding: 12px 14px;
+  background: rgba(42, 92, 188, 0.12);
+  display: grid;
+  gap: 6px;
+}
+
+.account__last-memory-title {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.account__module-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.account__coverage {
+  border-radius: 12px;
+  border: 1px solid var(--outline);
+  padding: 12px 14px;
+  background: rgba(42, 92, 188, 0.12);
+  display: grid;
+  gap: 10px;
+}
+
+.account__coverage-title {
+  margin: 0;
+}
+
+.account__coverage-item {
+  display: grid;
+  gap: 2px;
+}
+
+.account__coverage-meta {
+  font-size: 0.85rem;
+}

@@ -1,0 +1,20 @@
+.admin-users {
+  gap: 18px;
+}
+
+.admin-users__header {
+  gap: 14px;
+}
+
+.admin-users__panel {
+  gap: 20px;
+}
+
+.admin-users__actions {
+  gap: 10px;
+}
+
+.admin-users__error {
+  color: var(--danger);
+  margin: 0;
+}

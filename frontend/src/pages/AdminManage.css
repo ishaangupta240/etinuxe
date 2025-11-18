@@ -1,0 +1,53 @@
+.admin-manage-page {
+  display: grid;
+  gap: 24px;
+}
+
+.admin-manage__forms {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-manage__form {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-manage__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.admin-manage__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 220px;
+  flex: 1;
+}
+
+.admin-manage__field input,
+.admin-manage__field select,
+.admin-manage__field textarea {
+  width: 100%;
+}
+
+.admin-manage__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-manage__feedback {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.admin-manage__feedback--error {
+  color: var(--danger);
+}
+
+.admin-manage__feedback--success {
+  color: var(--success);
+}

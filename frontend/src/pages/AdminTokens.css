@@ -1,0 +1,81 @@
+.admin-tokens {
+  gap: 20px;
+}
+
+.admin-tokens__header {
+  align-items: center;
+}
+
+.admin-tokens__actions {
+  align-items: center;
+}
+
+.admin-tokens__grid-panel {
+  gap: 18px;
+}
+
+.admin-card-grid.admin-tokens__grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.admin-token-card {
+  border: 1px solid var(--outline);
+  border-radius: 18px;
+  padding: 18px;
+  display: grid;
+  gap: 10px;
+  background: rgba(42, 92, 188, 0.12);
+}
+
+.admin-token-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-token-card__title {
+  margin: 0;
+}
+
+.admin-token-card__actions {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 10px;
+}
+
+.admin-tokens__token-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-tokens__message {
+  margin: 0;
+}
+
+.admin-status-chip--draft {
+  background: rgba(42, 92, 188, 0.2);
+  color: #2a5cbc;
+}
+
+.admin-status-chip--awaiting-approval {
+  background: rgba(250, 204, 21, 0.2);
+  color: var(--warning);
+}
+
+.admin-status-chip--approved {
+  background: rgba(74, 222, 128, 0.18);
+  color: var(--success);
+}
+
+.admin-status-chip--rejected {
+  background: rgba(248, 113, 113, 0.18);
+  color: var(--danger);
+}
+
+.admin-status-chip--completed {
+  background: rgba(42, 92, 188, 0.16);
+  color: #4b7fe0;
+}

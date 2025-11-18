@@ -1,0 +1,224 @@
+.support-care {
+  display: grid;
+  gap: 28px;
+}
+
+.support-care__panel {
+  gap: 18px;
+}
+
+.support-care__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.support-care__title {
+  margin-bottom: 15px;
+}
+
+.support-care__subtitle {
+  margin: 4px 0 0;
+}
+
+.support-care__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.support-care__alert {
+  border-radius: 14px;
+  padding: 12px 16px;
+}
+
+.support-care__alert--error {
+  border: 1px solid var(--danger);
+  background: rgba(255, 112, 142, 0.16);
+  color: var(--danger);
+}
+
+.support-care__layout {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 280px 1fr;
+  align-items: start;
+}
+
+.support-care__sidebar {
+  display: grid;
+  gap: 12px;
+}
+
+.support-care__session-list {
+  display: grid;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+
+.support-care__session-button {
+  text-align: left;
+  border-radius: 14px;
+  border: 1px solid var(--outline);
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--surface-alt) 60%, transparent);
+  color: inherit;
+  display: grid;
+  gap: 4px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.support-care__session-button:hover {
+  background: color-mix(in srgb, var(--surface-alt) 80%, transparent);
+}
+
+.support-care__session-button.is-active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 24%, var(--surface-alt));
+}
+
+.support-care__session-button.is-distress {
+  border-color: rgba(255, 102, 128, 0.5);
+  box-shadow: 0 0 0 1px rgba(255, 102, 128, 0.35);
+  background: rgba(255, 102, 128, 0.18);
+}
+
+.support-care__session-title {
+  font-size: 0.95rem;
+}
+
+.support-care__session-status {
+  font-size: 0.8rem;
+}
+
+.support-care__session-meta {
+  font-size: 0.75rem;
+}
+
+.support-care__conversation {
+  border-radius: 18px;
+  border: 1px solid var(--outline);
+  background: color-mix(in srgb, var(--surface-alt) 85%, transparent);
+  padding: 16px;
+  display: grid;
+  gap: 16px;
+}
+
+.support-care__thread-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.support-care__thread-title {
+  margin: 0;
+}
+
+.support-care__thread-subtitle {
+  margin: 4px 0 0;
+}
+
+.support-care__messages {
+  display: grid;
+  gap: 12px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.support-care__message {
+  max-width: 80%;
+  border-radius: 16px;
+  padding: 10px 14px;
+  display: grid;
+  gap: 6px;
+  background: color-mix(in srgb, var(--surface-alt) 70%, transparent);
+  color: var(--text-primary);
+}
+
+.support-care__message--user {
+  justify-self: flex-end;
+  background: var(--accent);
+  color: #12011f;
+}
+
+.support-care__message--staff {
+  justify-self: flex-start;
+}
+
+.support-care__message-author {
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.support-care__message-body {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.support-care__message-time {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.support-care__form {
+  display: grid;
+  gap: 12px;
+}
+
+.support-care__form-title {
+  margin-bottom: 15px;
+}
+
+.support-care__field {
+  display: grid;
+  gap: 6px;
+}
+
+.support-care__field-label {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.support-care__textarea {
+  border-radius: 12px;
+  border: 1px solid var(--outline);
+  background: color-mix(in srgb, var(--surface-alt) 80%, transparent);
+  color: var(--text-primary);
+  padding: 12px 14px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.support-care__textarea:focus {
+  outline: 2px solid var(--accent);
+}
+
+.support-care__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 960px) {
+  .support-care__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .support-care__messages {
+    max-height: none;
+  }
+}

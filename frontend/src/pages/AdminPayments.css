@@ -1,0 +1,89 @@
+.admin-payments {
+  gap: 18px;
+}
+
+.admin-payments__header {
+  align-items: center;
+}
+
+.admin-payments__actions {
+  align-items: center;
+}
+
+.admin-payments__message {
+  margin: 0;
+}
+
+.admin-payments__grid-panel {
+  gap: 18px;
+}
+
+.admin-card-grid.admin-payments__grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.admin-payment-card {
+  border: 1px solid var(--outline);
+  border-radius: 18px;
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+  background: rgba(42, 92, 188, 0.12);
+}
+
+.admin-payment-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-payment-card__title {
+  margin: 0;
+}
+
+.admin-payment-card__meta {
+  display: grid;
+  gap: 4px;
+}
+
+.admin-payment-card__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-payment-card__amount {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.admin-payment-card__currency {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.admin-status-chip--captured {
+  background: rgba(42, 92, 188, 0.16);
+  color: #4b7fe0;
+}
+
+.admin-status-chip--pending,
+.admin-status-chip--processing {
+  background: rgba(250, 204, 21, 0.18);
+  color: var(--warning);
+}
+
+.admin-status-chip--failed,
+.admin-status-chip--declined {
+  background: rgba(248, 113, 113, 0.18);
+  color: var(--danger);
+}
+
+.admin-status-chip--refunded {
+  background: rgba(74, 222, 128, 0.18);
+  color: var(--success);
+}

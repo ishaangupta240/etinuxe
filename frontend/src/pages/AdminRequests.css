@@ -1,0 +1,142 @@
+.admin-requests {
+  gap: 20px;
+}
+
+.admin-requests__header {
+  align-items: center;
+}
+
+.admin-requests__actions {
+  align-items: center;
+}
+
+.admin-requests__status {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.admin-requests__chip {
+  border-radius: 999px;
+  border: 1px solid var(--outline);
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.admin-requests__chip.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.admin-requests__layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.admin-requests__grid-panel {
+  flex: 1 1 520px;
+  min-width: 320px;
+  gap: 16px;
+}
+
+.admin-requests__panel-header {
+  align-items: center;
+}
+
+.admin-card-grid.admin-requests__grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.admin-request-card {
+  border: 1px solid var(--outline);
+  border-radius: 18px;
+  padding: 18px;
+  background: rgba(42, 92, 188, 0.1);
+  display: grid;
+  gap: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.admin-request-card:hover {
+  border-color: var(--accent);
+  background: rgba(42, 92, 188, 0.18);
+  transform: translateY(-2px);
+}
+
+.admin-request-card--selected {
+  border-color: var(--accent);
+  background: rgba(42, 92, 188, 0.24);
+}
+
+.admin-request-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.admin-request-card__title {
+  margin: 0;
+}
+
+.admin-request-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.admin-requests__inspector {
+  flex: 0 1 360px;
+  min-width: 280px;
+  gap: 16px;
+}
+
+.admin-requests__inspector-content {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-requests__inspector-header {
+  align-items: flex-start;
+}
+
+.admin-requests__meta {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-requests__meta-note {
+  margin: 0;
+}
+
+.admin-requests__section {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-requests__field {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-requests__message {
+  margin: 0;
+}
+
+@media (max-width: 960px) {
+  .admin-requests__inspector {
+    flex: 1 1 360px;
+  }
+}

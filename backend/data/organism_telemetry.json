@@ -1,0 +1,22 @@
+[
+  {
+    "timestamp": "2025-11-18T23:22:51.534685+05:30",
+    "hunger": 88.94,
+    "metabolism": 27.72,
+    "dream_energy": 5.325,
+    "toxicity_level": 2.88,
+    "sleep_hours": 6.0,
+    "sleep_phase": "awake",
+    "dream_debt": 0.48
+  },
+  {
+    "timestamp": "2025-11-18T23:22:51.644817+05:30",
+    "hunger": 81.751,
+    "metabolism": 47.124,
+    "dream_energy": 5.497,
+    "toxicity_level": 4.608,
+    "sleep_hours": 6.0,
+    "sleep_phase": "awake",
+    "dream_debt": 0.816
+  }
+]

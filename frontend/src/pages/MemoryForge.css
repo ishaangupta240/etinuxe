@@ -1,0 +1,163 @@
+.memory-forge {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.memory-forge__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.memory-forge__header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+}
+
+.memory-forge__title {
+  margin-bottom: 15px;
+}
+
+.memory-forge__subtitle {
+  margin: 0.5rem 0 0;
+}
+
+.memory-forge__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.memory-forge__metrics {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.memory-forge__metric {
+  padding: 0.75rem 1rem;
+  border-radius: 0.875rem;
+  background: var(--surface-tonal);
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.memory-forge__metric-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.memory-forge__metric-value {
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.memory-forge__form {
+  display: grid;
+  gap: 1rem;
+}
+
+.memory-forge__inputs {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.memory-forge__field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.memory-forge__field-label {
+  font-weight: 600;
+}
+
+.memory-forge__textarea {
+  resize: vertical;
+  min-height: 8rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-subtle);
+  padding: 0.75rem 1rem;
+  font: inherit;
+  color: inherit;
+  background: var(--surface);
+}
+
+.memory-forge__textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.memory-forge__alert {
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+}
+
+.memory-forge__alert--status {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.memory-forge__alert--error {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
+}
+
+.memory-forge__dual {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.memory-forge__list-section {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.memory-forge__section-title {
+  margin: 0;
+}
+
+.memory-forge__list {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.memory-forge__list-item {
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-tonal);
+  display: grid;
+  gap: 0.35rem;
+}
+
+.memory-forge__list-heading {
+  font-weight: 600;
+}
+
+.memory-forge__list-meta {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 720px) {
+  .memory-forge__actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .memory-forge__actions .pill-button {
+    flex: 1 1 auto;
+  }
+}

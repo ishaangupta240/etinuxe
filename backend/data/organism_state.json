@@ -1,0 +1,20 @@
+{
+  "hunger": 81.751,
+  "metabolism": 47.124,
+  "mood": "neutral",
+  "last_feed": null,
+  "dream_energy": 5.497,
+  "dream_debt": 0.816,
+  "toxicity_level": 4.608,
+  "sleep_phase": "awake",
+  "last_sleep": null,
+  "sensitivity_threshold": 0.5,
+  "toxicity_resistance": 0.5,
+  "dream_tolerance": 0.5,
+  "auto_sleep_enabled": true,
+  "sleep_schedule_hour": 23,
+  "wake_schedule_hour": 6,
+  "sleep_duration_hours": 7.0,
+  "sleep_session_started_at": null,
+  "sleep_session_ends_at": null
+}

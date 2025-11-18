@@ -1,0 +1,162 @@
+.admin-dashboard {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 2fr 1fr;
+  align-items: start;
+}
+
+.admin-dashboard__panel {
+  margin-bottom: 0;
+}
+
+.admin-dashboard__panel-header {
+  gap: 16px;
+}
+
+.admin-dashboard__summary-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.summary-chip {
+  background: rgba(102, 46, 168, 0.28);
+  background: rgba(42, 92, 188, 0.28);
+  border-radius: 16px;
+  border: 1px solid var(--outline);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-chip__label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+}
+
+.summary-chip__value {
+  font-size: 1.25rem;
+}
+
+.admin-dashboard__operations {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.admin-dashboard__operation {
+  border-radius: 18px;
+  border: 1px solid var(--outline);
+  background: rgba(42, 92, 188, 0.12);
+  padding: 18px 20px;
+  display: grid;
+  gap: 12px;
+  min-height: 150px;
+}
+
+.admin-dashboard__operation-title {
+  margin: 0 0 6px;
+}
+
+.admin-dashboard__operation-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-dashboard__operation-metric {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.admin-dashboard__dreams {
+  display: grid;
+  gap: 14px;
+}
+
+.dream-card {
+  border-radius: 16px;
+  border: 1px solid var(--outline);
+  background: rgba(42, 92, 188, 0.14);
+  padding: 16px 18px;
+  display: grid;
+  gap: 6px;
+}
+
+.dream-card--nightmare {
+  background: rgba(244, 67, 54, 0.16);
+}
+
+.dream-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dream-card__category {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dream-card__timestamp {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.dream-card__body {
+  margin: 6px 0;
+}
+
+.dream-card__foot {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.admin-dashboard__cycles {
+  margin-top: 20px;
+  display: grid;
+  gap: 12px;
+}
+
+.admin-dashboard__cycles-title {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.admin-dashboard__cycles-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.cycle-item {
+  border: 1px solid var(--outline);
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: rgba(42, 92, 188, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cycle-item__timestamp {
+  color: var(--text-secondary);
+}
+
+.admin-dashboard__aside {
+  display: grid;
+  gap: 24px;
+}
+
+.admin-dashboard__aside-meta {
+  font-size: 0.85rem;
+}

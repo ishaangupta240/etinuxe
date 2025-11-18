@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<!--[if lt IE 8]><html class="no-js lt-ie9 lt-ie8"><![endif]-->
+<!--[if IE 8]><html class="no-js lt-ie9"><![endif]-->
+<!--[if gt IE 8]><!--><html class="no-js"><!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Marova</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="./build/static/css/style.css" />
+    <style>
+      .marova-stats-panel {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 220px;
+        padding: 18px 20px;
+        background: rgba(7, 7, 24, 0.72);
+        border: 1px solid rgba(88, 228, 255, 0.4);
+        box-shadow: 0 0 18px rgba(88, 228, 255, 0.25);
+        color: #eefbff;
+        font-family: 'Source Code Pro', monospace;
+        letter-spacing: 0.04em;
+        z-index: 20;
+        backdrop-filter: blur(12px);
+      }
+
+      .marova-stats-panel h2 {
+        margin: 0 0 12px;
+        font-size: 14px;
+        text-transform: uppercase;
+        color: #5be8ff;
+      }
+
+      .marova-stats-panel dl {
+        margin: 0 0 10px;
+      }
+
+      .marova-stats-panel dt {
+        font-size: 11px;
+        text-transform: uppercase;
+        opacity: 0.7;
+      }
+
+      .marova-stats-panel dd {
+        margin: 2px 0 0;
+        font-size: 18px;
+        color: #ffffff;
+      }
+
+      .marova-stats-panel dd small {
+        display: block;
+        margin-top: 2px;
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .marova-stats-panel--left {
+        left: 24px;
+      }
+
+      .marova-stats-panel--right {
+        right: 24px;
+      }
+
+      .marova-stats-panel .marova-status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #ffffff;
+      }
+
+      .marova-status-indicator span {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #5be8ff;
+        box-shadow: 0 0 8px rgba(91, 232, 255, 0.9);
+      }
+
+      .marova-log {
+        max-height: 160px;
+        overflow-y: auto;
+        font-size: 11px;
+        line-height: 1.45;
+        padding-right: 4px;
+        scrollbar-width: none;
+      }
+
+      .marova-log-entry {
+        margin-bottom: 8px;
+      }
+
+      .marova-log-entry time {
+        display: block;
+        font-size: 10px;
+        opacity: 0.6;
+      }
+
+      .marova-stats-panel h3 {
+        margin: 16px 0 8px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: rgba(91, 232, 255, 0.85);
+      }
+
+      .marova-sleep-entry {
+        margin-bottom: 10px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid rgba(91, 232, 255, 0.12);
+      }
+
+      .marova-sleep-entry:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .marova-sleep-entry strong {
+        display: block;
+        font-size: 13px;
+        letter-spacing: 0.08em;
+      }
+
+      .marova-sleep-entry time {
+        display: block;
+        font-size: 10px;
+        opacity: 0.6;
+      }
+
+      .marova-sleep-entry .marova-flag {
+        display: inline-block;
+        margin-top: 4px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: rgba(255, 122, 122, 0.2);
+        color: #ff7a7a;
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .marova-sleep-empty {
+        font-size: 11px;
+        opacity: 0.6;
+      }
+
+      .marova-status-enabled {
+        color: #4cff8f;
+      }
+
+      .marova-status-disabled {
+        color: #ff6b6b;
+      }
+
+      .marova-status-enabled small,
+      .marova-status-disabled small {
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      @media (max-width: 1200px) {
+        .marova-stats-panel {
+          display: none;
+        }
+      }
+    </style>
+    
+  </head>
+  <body>
+    <article id="info" class="modal info-modal">
+      <h1>Medusae</h1>
+      <div class="info-section">
+        <dl>
+          <dt>Concept, Design & Code</dt>
+          <dd><a href="http://jayweeks.com">Jay Weeks</a></dd>
+        </dl>
+        <dl>
+          <dt>Audio Design</dt>
+          <dd>JP Arsenault</a></dd>
+        </dl>
+      </div>
+      <div class="info-section">
+        <dl>
+          <dt>Physics</dt>
+          <dd><a href="http://particulatejs.org">Particulate</a></dd>
+        </dl>
+        <dl>
+          <dt>Graphics</dt>
+          <dd><a href="http://threejs.org">Three</a></dd>
+        </dl>
+      </div>
+      <div class="info-section">
+        <dl>
+          <dt>Source</dt>
+          <dd><a href="http://github.com/jpweeks/particulate-medusae">Github</a></dd>
+        </dl>
+        <dl>
+          <dt>Process</dt>
+          <dd><a href="https://www.flickr.com/photos/jpweeks/sets/72157646887502644/">Flickr</a></dd>
+        </dl>
+      </div>
+    </article>
+    <div id="cover-info" class="modal-cover"></div>
+
+    <div id="container-controls" style="visibility: hidden">
+      <div id="toggle-info" class="controls-button">
+        <div class="label">About</div>
+      </div>
+      <div id="toggle-dots" class="controls-button">
+        <div class="label">Particles</div>
+      </div>
+      <div id="menu-colors" class="controls-menu" style="visibility: hidden;"></div>
+      <div id="toggle-colors" class="controls-button">
+        <div class="label">Colors</div>
+      </div>
+      <div id="toggle-audio" class="controls-button">
+        <div class="label">Audio</div>
+      </div>
+      <div id="toggle-postfx" class="controls-button">
+        <div class="label">Post FX</div>
+      </div>
+      <div id="toggle-sim" class="controls-button">
+        <div class="label">Run Sim</div>
+      </div>
+    </div>
+
+    <div id="container-stats" class="stats-panel" style="visibility: hidden;">
+      <div id="container-graphs"></div>
+      <dl>
+        <dt>Particles</dt>
+        <dd id="particle-count"></dd>
+      </dl>
+      <dl>
+        <dt>Constraints</dt>
+        <dd id="constraint-count"></dd>
+      </dl>
+      <dl>
+        <dt>Forces</dt>
+        <dd id="force-count"></dd>
+      </dl>
+    </div>
+
+    <div id="container"></div>
+
+    <aside class="marova-stats-panel marova-stats-panel--left" aria-live="polite">
+      <h2>Marova Bio-Telemetry</h2>
+      <dl>
+        <dt>Metabolic Flux</dt>
+        <dd id="marova-metabolism">--<small>carbons per cycle</small></dd>
+      </dl>
+      <dl>
+        <dt>Hunger Vector</dt>
+        <dd id="marova-hunger">--<small>threshold percentage</small></dd>
+      </dl>
+      <dl>
+        <dt>Last Feed</dt>
+        <dd id="marova-last-feed">--<small>time since infusion</small></dd>
+      </dl>
+      <dl>
+        <dt>Dream Energy</dt>
+        <dd id="marova-dream-energy">--<small>reserve units</small></dd>
+      </dl>
+      <dl>
+        <dt>Dream Debt</dt>
+        <dd id="marova-dream-debt">--<small>hours outstanding</small></dd>
+      </dl>
+    </aside>
+
+    <aside class="marova-stats-panel marova-stats-panel--right" aria-live="polite">
+      <h2>Osmo-Vault Status</h2>
+      <div class="marova-status-indicator" id="marova-mood">
+        <span></span>
+        <div>--</div>
+      </div>
+      <dl>
+        <dt>Toxicity Load</dt>
+        <dd id="marova-toxicity">--<small>system burden</small></dd>
+      </dl>
+      <dl>
+        <dt>Sleep Phase</dt>
+        <dd id="marova-sleep-phase">--<small>circadian state</small></dd>
+      </dl>
+      <dl>
+        <dt>Last Rest</dt>
+        <dd id="marova-last-sleep">--<small>time since cycle</small></dd>
+      </dl>
+      <dl>
+        <dt>Auto Sleep</dt>
+        <dd id="marova-auto-sleep">--<small>automation status</small></dd>
+      </dl>
+      <dl>
+        <dt>Sleep Schedule</dt>
+        <dd id="marova-sleep-window">--<small>planned window (UTC)</small></dd>
+      </dl>
+      <dl>
+        <dt>Session Window</dt>
+        <dd id="marova-sleep-session">--<small>active interval</small></dd>
+      </dl>
+      <h3>Sleep Archive</h3>
+      <div class="marova-log" id="marova-sleep-archive" role="log" aria-label="Sleep archive feed"></div>
+    </aside>
+
+    
+      <script src="./build/static/js/three.min.js"></script>
+      <script src="./build/static/js/app.min.js"></script>
+    
+    <script>
+      App.STATIC_URL = "./build/static/";
+    </script>
+    <script>
+      (function () {
+        var hungerEl = document.getElementById("marova-hunger");
+        var metabolismEl = document.getElementById("marova-metabolism");
+        var lastFeedEl = document.getElementById("marova-last-feed");
+        var dreamEnergyEl = document.getElementById("marova-dream-energy");
+        var dreamDebtEl = document.getElementById("marova-dream-debt");
+        var toxicityEl = document.getElementById("marova-toxicity");
+        var sleepPhaseEl = document.getElementById("marova-sleep-phase");
+        var lastSleepEl = document.getElementById("marova-last-sleep");
+        var autoSleepEl = document.getElementById("marova-auto-sleep");
+        var sleepWindowEl = document.getElementById("marova-sleep-window");
+        var sleepSessionEl = document.getElementById("marova-sleep-session");
+        var moodEl = document.getElementById("marova-mood");
+        var moodDot = moodEl ? moodEl.querySelector("span") : null;
+        var moodLabel = moodEl ? moodEl.querySelector("div") : null;
+        var sleepArchiveEl = document.getElementById("marova-sleep-archive");
+        var API_BASE = window.MAROVA_API_BASE || "/api";
+        var lastMood = null;
+
+        if (sleepArchiveEl) {
+          sleepArchiveEl.dataset.state = "init";
+          sleepArchiveEl.innerHTML = '<div class="marova-sleep-empty">Loading sleep archive...</div>';
+        }
+        var MOOD_PRESETS = {
+          neutral: {
+            "Hood Contour": "#5f6a8d",
+            "Hood Primary": "#7c88a8",
+            "Hood Secondary": "#4a557a",
+            "Hood Tertiary": "#a3adc6",
+            "Tentacles": "#7fa4c9",
+            "Belly Primary": "#586381",
+            "Belly Secondary": "#8fa1c1",
+            "Mouth Primary": "#6d789b",
+            "Mouth Secondary": "#9fb2d4"
+          },
+          happy: {
+            "Hood Contour": "#ffb347",
+            "Hood Primary": "#ffd166",
+            "Hood Secondary": "#ff9f1c",
+            "Hood Tertiary": "#ffe5a1",
+            "Tentacles": "#ffeb7a",
+            "Belly Primary": "#ffb55c",
+            "Belly Secondary": "#ffdc80",
+            "Mouth Primary": "#ff9f68",
+            "Mouth Secondary": "#ffd39f"
+          },
+          excited: {
+            "Hood Contour": "#ff4d9a",
+            "Hood Primary": "#ff6bb7",
+            "Hood Secondary": "#ff2f6d",
+            "Hood Tertiary": "#ffa6d0",
+            "Tentacles": "#ff6fff",
+            "Belly Primary": "#ff4f9e",
+            "Belly Secondary": "#ff8ad6",
+            "Mouth Primary": "#ff2fa4",
+            "Mouth Secondary": "#ff6ed8"
+          },
+          relaxed: {
+            "Hood Contour": "#2fa8a8",
+            "Hood Primary": "#46c1c1",
+            "Hood Secondary": "#1b7d7d",
+            "Hood Tertiary": "#7ddad9",
+            "Tentacles": "#5ee0c7",
+            "Belly Primary": "#279b9b",
+            "Belly Secondary": "#6fd5c8",
+            "Mouth Primary": "#32b6a3",
+            "Mouth Secondary": "#6ce3d1"
+          },
+          sad: {
+            "Hood Contour": "#355dff",
+            "Hood Primary": "#4e7bff",
+            "Hood Secondary": "#1d3fbf",
+            "Hood Tertiary": "#9ab2ff",
+            "Tentacles": "#63a4ff",
+            "Belly Primary": "#2f4fd6",
+            "Belly Secondary": "#7fa3ff",
+            "Mouth Primary": "#3a5fff",
+            "Mouth Secondary": "#80b4ff"
+          },
+          angry: {
+            "Hood Contour": "#ff3b3b",
+            "Hood Primary": "#ff5c5c",
+            "Hood Secondary": "#d61616",
+            "Hood Tertiary": "#ff9a9a",
+            "Tentacles": "#ff4f7a",
+            "Belly Primary": "#ff3f2f",
+            "Belly Secondary": "#ff7a64",
+            "Mouth Primary": "#ff2f4b",
+            "Mouth Secondary": "#ff6b82"
+          },
+          depressed: {
+            "Hood Contour": "#5a4f7a",
+            "Hood Primary": "#7a6d9b",
+            "Hood Secondary": "#3e3459",
+            "Hood Tertiary": "#a59abe",
+            "Tentacles": "#7d6ca7",
+            "Belly Primary": "#4f456a",
+            "Belly Secondary": "#8a7fb5",
+            "Mouth Primary": "#675b8c",
+            "Mouth Secondary": "#9c92c6"
+          },
+          calm: {
+            "Hood Contour": "#4cb3ff",
+            "Hood Primary": "#54d8ff",
+            "Hood Secondary": "#1f6bff",
+            "Hood Tertiary": "#9ab7ff",
+            "Tentacles": "#49ffe6",
+            "Belly Primary": "#3b7bff",
+            "Belly Secondary": "#3fd7ff",
+            "Mouth Primary": "#2fb7ff",
+            "Mouth Secondary": "#51e8ff"
+          },
+          agitated: {
+            "Hood Contour": "#ff7058",
+            "Hood Primary": "#ff8b6a",
+            "Hood Secondary": "#ff3d3d",
+            "Hood Tertiary": "#ffc199",
+            "Tentacles": "#ff5fa5",
+            "Belly Primary": "#ff5c3b",
+            "Belly Secondary": "#ff9e70",
+            "Mouth Primary": "#ff4f6f",
+            "Mouth Secondary": "#ff7ba2"
+          },
+          distressed: {
+            "Hood Contour": "#ff5b8a",
+            "Hood Primary": "#ff769f",
+            "Hood Secondary": "#d93a62",
+            "Hood Tertiary": "#ffb1c7",
+            "Tentacles": "#ff6fbe",
+            "Belly Primary": "#ff4f78",
+            "Belly Secondary": "#ff8fab",
+            "Mouth Primary": "#ff4f8f",
+            "Mouth Secondary": "#ff89bb"
+          }
+        };
+
+        hookMarovaScene();
+
+        function hookMarovaScene() {
+          if (!window.App || !App.MainScene || App.MainScene.__marovaPatched) {
+            return;
+          }
+          App.MainScene.__marovaPatched = true;
+
+          var originalCreate = App.MainScene.create;
+          App.MainScene.create = function () {
+            var instance = originalCreate.apply(this, arguments);
+            window.__marovaScene = instance;
+            return instance;
+          };
+
+          var originalInitItems = App.MainScene.prototype.initItems;
+          App.MainScene.prototype.initItems = function () {
+            var result = originalInitItems.apply(this, arguments);
+            window.__marovaScene = this;
+            window.__marovaMedusae = this.medusae;
+            if (this.medusae && this.medusae.colors && !window.__marovaBaseColorMap) {
+              window.__marovaBaseColorMap = buildBaseColorMap(this.medusae.colors);
+            }
+            if (lastMood) {
+              applyMoodToJellyfish(lastMood);
+            }
+            return result;
+          };
+        }
+
+        function buildBaseColorMap(entries) {
+          var map = {};
+          if (!entries) {
+            return map;
+          }
+          entries.forEach(function (entry) {
+            if (entry && entry.label && entry.uniform && entry.uniform.value && typeof entry.uniform.value.clone === "function") {
+              map[entry.label] = entry.uniform.value.clone();
+            }
+          });
+          return map;
+        }
+
+        function applyMoodToJellyfish(mood) {
+          var medusae = window.__marovaMedusae;
+          if (!medusae || !medusae.colors) {
+            return;
+          }
+          if (!window.__marovaBaseColorMap) {
+            window.__marovaBaseColorMap = buildBaseColorMap(medusae.colors);
+          }
+          var baseMap = window.__marovaBaseColorMap || {};
+          var palette = MOOD_PRESETS[mood];
+          medusae.colors.forEach(function (entry) {
+            var fallback = baseMap[entry.label];
+            var target = palette ? palette[entry.label] : null;
+            if (target) {
+              entry.uniform.value.set(target);
+            } else if (fallback) {
+              entry.uniform.value.copy(fallback);
+            }
+          });
+          if (window.__marovaScene && typeof window.__marovaScene.makeDirty === "function") {
+            window.__marovaScene.makeDirty();
+          }
+        }
+
+        function fmtPercent(value) {
+          if (typeof value !== "number" || isNaN(value)) {
+            return "--";
+          }
+          var percent = value > 1 ? value : value * 100;
+          return percent.toFixed(2) + "%";
+        }
+
+        function fmtNumber(value) {
+          if (typeof value !== "number" || isNaN(value)) {
+            return "--";
+          }
+          return value.toFixed(2);
+        }
+
+        function fmtTime(value) {
+          if (!value) {
+            return "Awaiting first infusion";
+          }
+          try {
+            var dt = new Date(value);
+            if (isNaN(dt.getTime())) {
+              return value;
+            }
+            return dt.toLocaleString();
+          } catch (err) {
+            return value;
+          }
+        }
+        function fmtAutoSleep(value) {
+          if (value === true) {
+            return "ENABLED";
+          }
+          if (value === false) {
+            return "DISABLED";
+          }
+          return "--";
+        }
+
+        function isFiniteNumber(value) {
+          return typeof value === "number" && isFinite(value) && !isNaN(value);
+        }
+
+        function formatHourMinute(value) {
+          if (!isFiniteNumber(value)) {
+            return "--:--";
+          }
+          var totalMinutes = Math.round(value * 60);
+          var minutesInDay = 24 * 60;
+          var normalized = ((totalMinutes % minutesInDay) + minutesInDay) % minutesInDay;
+          var hours = Math.floor(normalized / 60);
+          var minutes = normalized % 60;
+          return hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0");
+        }
+
+        function fmtSleepWindow(startHour, endHour) {
+          if (!isFiniteNumber(startHour) || !isFiniteNumber(endHour)) {
+            return "--";
+          }
+          return formatHourMinute(startHour) + " -> " + formatHourMinute(endHour);
+        }
+
+        function fmtTimestamp(value) {
+          if (!value) {
+            return null;
+          }
+          try {
+            var stamp = new Date(value);
+            if (isNaN(stamp.getTime())) {
+              return String(value);
+            }
+            return stamp.toLocaleString();
+          } catch (err) {
+            return String(value);
+          }
+        }
+
+        function fmtSessionWindow(start, end) {
+          var startStamp = fmtTimestamp(start);
+          var endStamp = fmtTimestamp(end);
+          if (startStamp && endStamp) {
+            return startStamp + " -> " + endStamp;
+          }
+          if (startStamp) {
+            return startStamp + " -> Pending";
+          }
+          return "IDLE";
+        }
+
+        function updateAutoSleepStatus(value) {
+          if (!autoSleepEl) {
+            return;
+          }
+          autoSleepEl.classList.remove("marova-status-enabled", "marova-status-disabled");
+          var statusText = fmtAutoSleep(value);
+          if (value === true) {
+            autoSleepEl.classList.add("marova-status-enabled");
+          } else if (value === false) {
+            autoSleepEl.classList.add("marova-status-disabled");
+          }
+          autoSleepEl.innerHTML = statusText + '<small>automation status</small>';
+        }
+
+        function renderSleepArchive(records) {
+          if (!sleepArchiveEl) {
+            return;
+          }
+          if (!Array.isArray(records) || records.length === 0) {
+            sleepArchiveEl.dataset.state = "empty";
+            sleepArchiveEl.innerHTML = '<div class="marova-sleep-empty">No sleep cycles logged.</div>';
+            return;
+          }
+          sleepArchiveEl.dataset.state = "ready";
+          sleepArchiveEl.innerHTML = records
+            .slice(0, 10)
+            .map(function (entry) {
+              var duration = isFiniteNumber(entry.duration_hours) ? entry.duration_hours.toFixed(1) + "h" : "--";
+              var quality = isFiniteNumber(entry.quality) ? Math.round(entry.quality * 100) + "%" : "--";
+              var summary = duration + " | " + quality + " quality";
+              var timestamp = fmtTimestamp(entry.occurred_at) || "Timestamp unavailable";
+              var abrupt = entry && entry.abrupt_wake ? '<span class="marova-flag">Abrupt wake</span>' : "";
+              return (
+                '<div class="marova-sleep-entry">' +
+                "<strong>" + summary + "</strong>" +
+                "<time>" + timestamp + "</time>" +
+                abrupt +
+                "</div>"
+              );
+            })
+            .join("");
+        }
+
+        function renderSleepArchiveFallback(message) {
+          if (!sleepArchiveEl) {
+            return;
+          }
+          sleepArchiveEl.dataset.state = "fallback";
+          sleepArchiveEl.innerHTML = '<div class="marova-sleep-empty">' + (message || "Sleep archive unavailable.") + "</div>";
+        }
+
+        function applyMood(mood) {
+          if (!moodDot || !moodLabel) {
+            return;
+          }
+          var palette = {
+            neutral: "#7c88a8",
+            happy: "#ffd166",
+            excited: "#ff6bb7",
+            relaxed: "#46c1c1",
+            sad: "#4e7bff",
+            angry: "#ff5c5c",
+            depressed: "#7a6d9b",
+            calm: "#5be8ff",
+            agitated: "#ff8a5c",
+            distressed: "#ff6f9f",
+          };
+          var tone = palette[mood] || "#5be8ff";
+          moodDot.style.background = tone;
+          moodDot.style.boxShadow = "0 0 12px " + tone;
+          moodLabel.textContent = mood ? mood.toUpperCase() : "--";
+          lastMood = mood;
+          applyMoodToJellyfish(mood);
+        }
+
+        function renderState(payload) {
+          if (!payload || typeof payload !== "object") {
+            return;
+          }
+          if (metabolismEl) {
+            metabolismEl.innerHTML = fmtNumber(payload.metabolism) + '<small>carbons per cycle</small>';
+          }
+          if (hungerEl) {
+            hungerEl.innerHTML = fmtPercent(payload.hunger) + '<small>threshold percentage</small>';
+          }
+          if (lastFeedEl) {
+            lastFeedEl.innerHTML = fmtTime(payload.last_feed) + '<small>time since infusion</small>';
+          }
+          if (dreamEnergyEl) {
+            dreamEnergyEl.innerHTML = fmtNumber(payload.dream_energy) + '<small>reserve units</small>';
+          }
+          if (dreamDebtEl) {
+            dreamDebtEl.innerHTML = fmtNumber(payload.dream_debt) + '<small>hours outstanding</small>';
+          }
+          if (toxicityEl) {
+            toxicityEl.innerHTML = fmtPercent(payload.toxicity_level) + '<small>system burden</small>';
+          }
+          if (sleepPhaseEl) {
+            var phase = payload.sleep_phase ? String(payload.sleep_phase).replace(/_/g, ' ') : '--';
+            sleepPhaseEl.innerHTML = phase.toUpperCase() + '<small>circadian state</small>';
+          }
+          if (lastSleepEl) {
+            lastSleepEl.innerHTML = fmtTime(payload.last_sleep) + '<small>time since cycle</small>';
+          }
+          updateAutoSleepStatus(payload.auto_sleep_enabled);
+          if (sleepWindowEl) {
+            sleepWindowEl.innerHTML = fmtSleepWindow(payload.sleep_schedule_hour, payload.wake_schedule_hour) + '<small>planned window (UTC)</small>';
+          }
+          if (sleepSessionEl) {
+            sleepSessionEl.innerHTML = fmtSessionWindow(payload.sleep_session_started_at, payload.sleep_session_ends_at) + '<small>active interval</small>';
+          }
+          applyMood(payload.mood);
+        }
+
+        function fetchState() {
+          fetch(API_BASE + "/organism/state")
+            .then(function (response) {
+              if (!response.ok) {
+                throw new Error("Status " + response.status);
+              }
+              return response.json();
+            })
+            .then(renderState)
+            .catch(function (error) {
+              if (!sleepArchiveEl || sleepArchiveEl.dataset.state !== "ready") {
+                renderSleepArchiveFallback("Telemetry unavailable: " + (error.message || "Unknown error"));
+              }
+            });
+        }
+
+        function fetchSleepArchive() {
+          fetch(API_BASE + "/dreams/sleep-cycles?limit=10")
+            .then(function (response) {
+              if (!response.ok) {
+                throw new Error("Status " + response.status);
+              }
+              return response.json();
+            })
+            .then(function (payload) {
+              var records = payload && Array.isArray(payload.sleep_cycles) ? payload.sleep_cycles : [];
+              renderSleepArchive(records);
+            })
+            .catch(function (error) {
+              renderSleepArchiveFallback("Sleep archive unavailable: " + (error.message || "Unknown error"));
+            });
+        }
+
+        fetchState();
+        fetchSleepArchive();
+        setInterval(fetchState, 15000);
+        setInterval(fetchSleepArchive, 60000);
+      })();
+    </script>
+  </body>
+</html>

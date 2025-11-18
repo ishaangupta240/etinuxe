@@ -1,0 +1,22 @@
+{
+  "pricing_per_step": 100,
+  "scale_min": 0.001,
+  "scale_max": 0.5,
+  "scale_step": 0.01,
+  "insurance_pricing": {
+    "basic": 20.0,
+    "plus": 30.0,
+    "premium": 60.0,
+    "ultra": 80.0
+  },
+  "health_bucket_multipliers": {
+    "good": 1.0,
+    "normal": 1.2,
+    "unhealthy": 1.7,
+    "extremely_unhealthy": 2.4
+  },
+  "points_discount": {
+    "points_per_discount_unit": 10000,
+    "discount_per_unit": 30.0
+  }
+}
