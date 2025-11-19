@@ -17,7 +17,7 @@ from typer.testing import CliRunner
 import getpass
 
 REQUIRED_PREFIX = "code"
-DEFAULT_BASE_URL = "https://exun.codeclub.co.in"
+DEFAULT_BASE_URL = "https://exun.codeclub.co.in/api"
 IST_ZONE = timezone(timedelta(hours=5, minutes=30))
 
 app = typer.Typer(help="EtinuxE remote organism diagnostics console")
