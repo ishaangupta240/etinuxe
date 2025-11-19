@@ -1,7 +1,5 @@
 # Insurance Pricing Logic
 
-This document summarizes how EtinuxE calculates premiums for each insurance tier and how those tiers progress across the user journey.
-
 ## Key Concepts
 
 - **Scale**: The target miniaturization scale (e.g. `0.001`). Scale values are converted into pricing units to size the policy relative to how small the candidate will become.
@@ -66,5 +64,3 @@ Adjust the following keys in `backend/data/settings.json` to tune insurance beha
 - `health_bucket_multipliers`: Multipliers by health bucket value.
 - `points_discount.points_per_discount_unit`: Points needed for each discount step.
 - `points_discount.discount_per_unit`: Dollar amount reduced per discount step.
-
-Changes take effect on the next API restart because pricing is read from the settings JSON at runtime.
