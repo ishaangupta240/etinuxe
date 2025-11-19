@@ -19,4 +19,4 @@
    python -m app.cli --help
    ```
 
-The API listens on `http://127.0.0.1:8000`. Interactive documentation is available at `/docs`.
+The API listens on `http://127.0.0.1:8000`.
