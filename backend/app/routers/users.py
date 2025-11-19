@@ -56,6 +56,12 @@ def update_health(user_id: uuid.UUID, payload: HealthProfileUpdate) -> dict:
     }
 
 
+@router.post("/{user_id}/otp/resend")
+def resend_otp(user_id: uuid.UUID) -> dict:
+    record = services.resend_signup_otp(user_id)
+    return {"status": "sent", "expires_at": record.expires_at.isoformat()}
+
+
 @router.post("/{user_id}/miniaturization")
 def submit_request(user_id: uuid.UUID, payload: MiniaturizationRequestInput) -> dict:
     request = services.submit_miniaturization_request(user_id, payload)

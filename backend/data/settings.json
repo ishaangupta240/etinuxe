@@ -1,5 +1,5 @@
 {
-  "pricing_per_step": 100,
+  "pricing_per_step": 100.0,
   "scale_min": 0.001,
   "scale_max": 0.5,
   "scale_step": 0.01,
@@ -17,6 +17,6 @@
   },
   "points_discount": {
     "points_per_discount_unit": 10000,
-    "discount_per_unit": 30.0
+    "discount_per_unit": 10.0
   }
 }

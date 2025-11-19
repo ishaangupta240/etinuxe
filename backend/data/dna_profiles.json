@@ -1,1 +1,80 @@
-[]
+[
+  {
+    "id": "131017c8-8e9e-4473-9212-e2809da6e6e0",
+    "user_id": "5903bc26-7033-474d-b9e6-31caea1899f1",
+    "respiration_rate": 12.0,
+    "energy_consumption": 1.0,
+    "medical_history": null,
+    "health_score": 100,
+    "health_bucket": "good",
+    "created_at": "2025-11-19T13:51:38.434783+05:30",
+    "updated_at": "2025-11-19T13:51:38.434783+05:30",
+    "health_summary": "Sleep duration sits within the optimal 7-9 hour band. Movement targets align with guidance for metabolic balance. Nutrient intake supports cellular resilience. Stress responses remain within adaptive thresholds. Consistent mindfulness supports emotional regulation.",
+    "health_risks": [],
+    "health_inputs": {
+      "sleep_hours": 7.0,
+      "exercise_minutes_per_week": 150,
+      "diet_quality": 4,
+      "stress_level": 2,
+      "chronic_condition": false,
+      "alcohol_units_per_week": 2,
+      "smoker": false,
+      "meditation_minutes_per_week": 60,
+      "hydration_liters_per_day": 2.4
+    }
+  },
+  {
+    "id": "6f10a2a6-da09-4fe5-b79d-09937a130e2d",
+    "user_id": "3bb0e75e-c2a1-4f03-9781-087797fb8763",
+    "respiration_rate": 14.0,
+    "energy_consumption": 1.4,
+    "medical_history": null,
+    "health_score": 52,
+    "health_bucket": "unhealthy",
+    "created_at": "2025-11-19T14:12:58.805098+05:30",
+    "updated_at": "2025-11-19T14:12:58.805098+05:30",
+    "health_summary": "Sleep duration sits within the optimal 7-9 hour band. Weekly activity falls below 150 minutes; gradual increases will stabilise metabolism. Diet quality trending low; emphasise whole foods and hydration. Heightened stress levels recorded; introduce decompression rituals. Alcohol use remains moderate; continue monitoring intake. Nicotine exposure detected; cessation strongly advised to support microvascular health. Mindfulness practice is minimal; short guided sessions can offset stress load. Hydration falls below recommended 1.5L; increase fluid intake daily.",
+    "health_risks": [
+      "dietary_risk",
+      "elevated_stress",
+      "low_activity",
+      "low_hydration",
+      "tobacco_exposure"
+    ],
+    "health_inputs": {
+      "sleep_hours": 9.0,
+      "exercise_minutes_per_week": 0,
+      "diet_quality": 2,
+      "stress_level": 5,
+      "chronic_condition": false,
+      "alcohol_units_per_week": 12,
+      "smoker": true,
+      "meditation_minutes_per_week": 0,
+      "hydration_liters_per_day": 1.0
+    }
+  },
+  {
+    "id": "a80431cf-3ee6-4cb6-b5ee-9f6378800842",
+    "user_id": "35ad0677-1a54-40d4-8b3a-1995d475615e",
+    "respiration_rate": 14.0,
+    "energy_consumption": 1.3,
+    "medical_history": null,
+    "health_score": 77,
+    "health_bucket": "normal",
+    "created_at": "2025-11-19T14:22:21.625416+05:30",
+    "updated_at": "2025-11-19T14:37:49.887327+05:30",
+    "health_summary": "Sleep duration sits within the optimal 7-9 hour band. Movement targets align with guidance for metabolic balance. Nutrient intake supports cellular resilience. Stress responses remain within adaptive thresholds. Consistent mindfulness supports emotional regulation.",
+    "health_risks": [],
+    "health_inputs": {
+      "sleep_hours": 7.0,
+      "exercise_minutes_per_week": 150,
+      "diet_quality": 4,
+      "stress_level": 2,
+      "chronic_condition": false,
+      "alcohol_units_per_week": 2,
+      "smoker": false,
+      "meditation_minutes_per_week": 60,
+      "hydration_liters_per_day": 2.4
+    }
+  }
+]

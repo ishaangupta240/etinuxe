@@ -41,7 +41,7 @@ All premium math happens inside `_calculate_insurance_pricing` (see `backend/app
    - Extremely Unhealthy: `2.4`
 
 4. **Redeem memory points (optional)**
-   - Every full `points_per_discount_unit` (default `10000` points) unlocks a `discount_per_unit` (default `30` USD) reduction.
+   - Every full `points_per_discount_unit` (default `10000` points) unlocks a `discount_per_unit` (default `10` USD) reduction.
    - Points redemption is capped by both points on hand and the premium amount so charges never go negative.
    - During scheduling scenarios (upgrades while another policy is active) the preview still shows hypothetical points spent, but actual redemption occurs only when the new policy becomes active.
 
@@ -54,7 +54,7 @@ Returned metadata also tracks points spent, available points, and the bucket mul
 
 ## Activation Behaviour
 
-- **Initial signup**: The signup flow captures a preferred tier (defaults to Basic). Once the user's miniaturization request completes, `_auto_activate_initial_insurance` immediately issues that tier with an effective date matching the completion time.
+- **Initial signup**: The signup flow captures a preferred tier (defaults to Basic). Once the user's miniaturization request completes, `_auto_activate_initial_insurance` immediately issues that tier with an effect1ive date matching the completion time.
 - **Subsequent upgrades/downgrades**: When a user changes tiers via `/account/insurance`, the system schedules the new policy to take effect on the next billing date if an active policy is present. Otherwise the activation is immediate.
 - **Scheduled swaps**: If a scheduled policy already exists for the request, the newer selection cancels the previous scheduled record before writing the replacement.
 

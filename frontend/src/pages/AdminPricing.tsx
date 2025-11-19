@@ -1,4 +1,13 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  WheelEvent,
+} from "react";
 
 import { SettingsRecord, updateSettings } from "../api";
 import { useAdminOverview } from "../hooks/useAdminOverview";
@@ -106,7 +115,7 @@ export default function AdminPricing(): JSX.Element {
                 label="Pricing per 0.01×"
                 value={draft.pricing_per_step}
                 step={0.5}
-                min={0.01}
+                min={0.5}
                 onChange={value => changeField("pricing_per_step", value)}
               />
               <PricingField label="Scale minimum" value={draft.scale_min} step={0.001} min={0.001} onChange={value => changeField("scale_min", value)} />
@@ -120,14 +129,14 @@ export default function AdminPricing(): JSX.Element {
             <p className="admin-pricing__helper">Monthly premium per 0.01× before health adjustments.</p>
             <div className="admin-pricing__grid">
               {tierOrder.map(tier => (
-                <PricingField
-                  key={tier}
-                  label={`${tierLabels[tier]} tier`}
-                  value={draft.insurance_pricing[tier]}
-                  step={1}
-                  min={0.01}
-                  onChange={value => changeInsuranceField(tier, value)}
-                />
+                  <PricingField
+                    key={tier}
+                    label={`${tierLabels[tier]} tier`}
+                    value={draft.insurance_pricing[tier]}
+                    step={1}
+                    min={1}
+                    onChange={value => changeInsuranceField(tier, value)}
+                  />
               ))}
             </div>
           </div>
@@ -164,7 +173,7 @@ export default function AdminPricing(): JSX.Element {
                 label="Discount per redemption ($/month)"
                 value={pointsDiscount.discount_per_unit}
                 step={1}
-                min={0.01}
+                min={1}
                 onChange={value => changePointsField("discount_per_unit", value)}
               />
             </div>
@@ -197,17 +206,102 @@ function PricingField({
   min?: number;
   onChange: (value: number) => void;
 }): JSX.Element {
+  const [display, setDisplay] = useState<string>(() => formatDisplay(value));
+
+  useEffect(() => {
+    setDisplay(formatDisplay(value));
+  }, [value]);
+
+  const commitValue = useCallback(
+    (raw: string) => {
+      const trimmed = raw.trim();
+      if (trimmed === "") {
+        if (typeof min === "number") {
+          onChange(min);
+        }
+        setDisplay(formatDisplay(typeof min === "number" ? min : value));
+        return;
+      }
+
+      const parsed = Number(trimmed);
+      if (Number.isNaN(parsed) || !Number.isFinite(parsed)) {
+        setDisplay(formatDisplay(value));
+        return;
+      }
+
+      let next = parsed;
+      if (typeof min === "number" && next < min) {
+        next = min;
+      }
+      if (step > 0) {
+        const base = typeof min === "number" ? min : 0;
+        const steps = Math.round((next - base) / step);
+        next = base + steps * step;
+      }
+      const normalized = Number(next.toFixed(6));
+      if (normalized !== value) {
+        onChange(normalized);
+      } else {
+        setDisplay(formatDisplay(normalized));
+      }
+    },
+    [min, onChange, step, value]
+  );
+
+  const handleChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const raw = event.currentTarget.value;
+    if (raw === "" || NUMBER_INPUT_PATTERN.test(raw)) {
+      setDisplay(raw);
+    }
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    commitValue(display);
+  }, [commitValue, display]);
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        commitValue(display);
+        event.currentTarget.blur();
+        return;
+      }
+
+      if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+        event.preventDefault();
+      }
+    },
+    [commitValue, display]
+  );
+
+  const handleWheel = useCallback((event: WheelEvent<HTMLInputElement>) => {
+    if (document.activeElement === event.currentTarget) {
+      event.preventDefault();
+    }
+  }, []);
+
   return (
     <label className="admin-pricing__field">
       <span className="admin-pricing__field-label">{label}</span>
       <input
-        type="number"
-        step={step}
-        value={value}
-        min={min}
-        onChange={event => onChange(Number(event.currentTarget.value))}
+        type="text"
+        value={display}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+        onWheel={handleWheel}
+        inputMode="decimal"
+        autoComplete="off"
+        pattern="\d*(\.\d*)?"
         className="admin-pricing__input"
       />
     </label>
   );
+}
+
+const NUMBER_INPUT_PATTERN = /^\d*(\.\d*)?$/;
+
+function formatDisplay(input: number): string {
+  return Number.isFinite(input) ? String(input) : "";
 }

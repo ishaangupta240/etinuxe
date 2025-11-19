@@ -339,6 +339,10 @@ class OrganismState(BaseModel):
     sleep_session_ends_at: Optional[datetime] = None
 
 
+class AutoSleepToggleRequest(BaseModel):
+    enabled: bool
+
+
 class OrganismTelemetryEntry(BaseModel):
     timestamp: datetime = Field(default_factory=now_ist)
     hunger: float

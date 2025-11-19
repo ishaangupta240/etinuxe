@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": "d978df2b-eace-4e39-80e1-4691282259be",
+    "user_id": "5903bc26-7033-474d-b9e6-31caea1899f1",
+    "payload_checksum": "5ef0a11ee05df8673729e6ec2d49e6f0cc56cbdc279b5cbe47bef0ca55a31602",
+    "encrypted_blob": "f1470b382b46e35247c1f72c7b3aaa3e679e31fa48665ec3c45095c366cc56b6",
+    "created_at": "2025-11-19T14:02:15.514085+05:30",
+    "remaining_energy": 7.994
+  },
+  {
+    "id": "03be78c6-6de2-4597-9c32-4d672510477a",
+    "user_id": "3bb0e75e-c2a1-4f03-9781-087797fb8763",
+    "payload_checksum": "9f053a41644899e0a146285c15d3b748568935bd1497c30b666eb04a12f3f55c",
+    "encrypted_blob": "9a9684fd30f30037db3f480fb1eef14f928a1ee86de88113aab10928053f7bd5",
+    "created_at": "2025-11-19T14:13:04.697205+05:30",
+    "remaining_energy": 7.994
+  },
+  {
+    "id": "0c1f7cad-18ee-49e8-94c9-f37e5cbc9a87",
+    "user_id": "35ad0677-1a54-40d4-8b3a-1995d475615e",
+    "payload_checksum": "47ff55354c93230b1ce26c29084e9e08470e8dffc60671a5ce5a39dbcc84d377",
+    "encrypted_blob": "908616a03470bfc5459dc5a64b1cd51fa71884324737e7c90e5158a6fdf833ab",
+    "created_at": "2025-11-19T14:22:25.315126+05:30",
+    "remaining_energy": 7.994
+  }
+]

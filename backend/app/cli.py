@@ -93,6 +93,10 @@ def code_state(
     state = services.get_organism_state().model_dump(mode="json")
     state = _select_keys(state, fields, "state field")
     state = _convert_mapping_to_ist(state)
+    if state.get("sleep_session_started_at") in (None, ""):
+        state["sleep_session_started_at"] = "Idle"
+    if state.get("sleep_session_ends_at") in (None, ""):
+        state["sleep_session_ends_at"] = "Pending"
 
     if not state:
         typer.echo("No organism state available.")
@@ -135,6 +139,38 @@ def code_stats(
         typer.echo(_render_table(headers, rows))
     else:
         typer.echo("(none)")
+
+
+@app.command("code-auto-sleep")
+def auto_sleep(
+    disable: bool = typer.Option(False, "--disable", help="Disable automatic sleep scheduling."),
+    enable: bool = typer.Option(False, "--enable", help="Enable automatic sleep scheduling."),
+) -> None:
+    """Inspect or configure the auto sleep scheduler."""
+
+    if disable and enable:
+        typer.echo("Choose either --enable or --disable when calling auto-sleep.", err=True)
+        raise typer.Exit(code=1)
+
+    if disable:
+        state = services.set_auto_sleep_mode(False)
+        action = "disabled"
+    elif enable:
+        state = services.set_auto_sleep_mode(True)
+        action = "enabled"
+    else:
+        state = services.get_organism_state()
+        action = None
+
+    snapshot = _convert_mapping_to_ist(state.model_dump(mode="json"))
+    start_label = snapshot.get("sleep_session_started_at") or "Idle"
+    end_label = snapshot.get("sleep_session_ends_at") or "Pending"
+
+    if action:
+        typer.echo(f"Auto sleep {action}.")
+    typer.echo(f"Status: {'enabled' if state.auto_sleep_enabled else 'disabled'}")
+    typer.echo(f"Sleep session start: {start_label}")
+    typer.echo(f"Sleep session ends: {end_label}")
 
 
 if __name__ == "__main__":

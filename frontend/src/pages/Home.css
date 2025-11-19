@@ -40,7 +40,7 @@
   line-height: 1.1;
   color: var(--text-primary);
   margin: 0;
-}
+  
 
 .home__hero-accent {
   background: linear-gradient(135deg, var(--accent), #030f23);
@@ -75,8 +75,10 @@
   transition: all 0.3s ease;
   box-shadow: var(--glow);
 }
-
-.home__cta-primary:hover {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 16px;
+  text-align: center;
   transform: translateY(-2px);
   box-shadow: 0 18px 36px rgba(42, 92, 188, 0.4);
 }
@@ -424,6 +426,147 @@
   margin-bottom: 32px;
 }
 
+@media (max-width: 768px) {
+  .home {
+    padding: 0 16px 60px;
+  }
+
+  .home__hero {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    padding: 40px 0;
+    text-align: center;
+  }
+
+  .home__hero-content {
+    align-items: center;
+  }
+
+  .home__hero-title {
+    font-size: 2.4rem;
+  }
+
+  .home__hero-description {
+    font-size: 1rem;
+  }
+
+  .home__hero-actions {
+    justify-content: center;
+  }
+
+  .home__visual-container {
+    width: 260px;
+    height: 260px;
+  }
+
+  .home__visual-orb {
+    width: 120px;
+    height: 120px;
+  }
+
+  .home__visual-ring:nth-child(2) {
+    width: 200px;
+    height: 200px;
+    margin-left: -100px;
+    margin-top: -100px;
+  }
+
+  .home__visual-ring:nth-child(3) {
+    width: 280px;
+    height: 280px;
+    margin-left: -140px;
+    margin-top: -140px;
+  }
+
+  .home__visual-ring:nth-child(4) {
+    width: 320px;
+    height: 320px;
+    margin-left: -160px;
+    margin-top: -160px;
+  }
+
+  .home__section-header h2 {
+    font-size: 2rem;
+  }
+
+  .home__section-header p {
+    font-size: 1rem;
+  }
+
+  .home__features,
+  .home__process,
+  .home__insurance,
+  .home__story,
+  .home__cta {
+    padding: 50px 0;
+  }
+
+  .home__features-grid,
+  .home__process-steps,
+  .home__insurance-plans,
+  .home__story-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .home__feature-card,
+  .home__insurance-card {
+    padding: 28px 22px;
+  }
+
+  .home__insurance-card--featured {
+    transform: none;
+  }
+
+  .home__process-step {
+    padding: 0;
+  }
+
+  .home__story-grid {
+    display: grid;
+  }
+
+  .home__story-media {
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: none;
+    width: 100%;
+  }
+
+  .home__story-overlay {
+    max-width: none;
+  }
+
+  .home__team-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  .home__cta-layout {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .home__cta-text {
+    text-align: left;
+  }
+
+  .home__cta-group {
+    justify-content: flex-start;
+  }
+
+  .home__cta-illustration {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .home__cta-orb,
+  .home__cta-ring,
+  .home__cta-spark {
+    display: none;
+  }
+}
 .home__plan-features {
   list-style: none;
   padding: 0;

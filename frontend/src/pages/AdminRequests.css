@@ -135,6 +135,69 @@
   margin: 0;
 }
 
+.admin-request-card__tokens {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.admin-request-card__tokens-label {
+  font-weight: 600;
+}
+
+.admin-request-card__token {
+  background: rgba(42, 92, 188, 0.12);
+  border-radius: 14px;
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.admin-request-card__token-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-request-card__token-actions {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 8px;
+}
+
+.admin-requests__token-control {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-status-chip--draft {
+  background: rgba(42, 92, 188, 0.2);
+  color: #2a5cbc;
+}
+
+.admin-status-chip--awaiting-approval {
+  background: rgba(250, 204, 21, 0.2);
+  color: var(--warning);
+}
+
+.admin-status-chip--approved {
+  background: rgba(74, 222, 128, 0.18);
+  color: var(--success);
+}
+
+.admin-status-chip--rejected {
+  background: rgba(248, 113, 113, 0.18);
+  color: var(--danger);
+}
+
+.admin-status-chip--completed {
+  background: rgba(42, 92, 188, 0.16);
+  color: #4b7fe0;
+}
+
 @media (max-width: 960px) {
   .admin-requests__inspector {
     flex: 1 1 360px;

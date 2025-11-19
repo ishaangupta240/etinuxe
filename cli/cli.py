@@ -10,7 +10,6 @@ from typing import Any, Iterable, Sequence
 
 from typer.testing import CliRunner
 import getpass
-import uuid
 
 REQUIRED_PREFIX = "code"
 
@@ -80,6 +79,7 @@ def _print_help() -> None:
         "Commands must start with 'code'. Available options:\n"
         "  code-state [--field field ...]         Show organism vitals\n"
         "  code-stats [--metric metric ...]       Show telemetry snapshots\n"
+        "  code-auto-sleep [--enable|--disable]   Toggle or inspect auto sleep\n"
         "Other utilities:\n"
         "  help                                   Show this message\n"
         "  exit | quit                            Leave the console\n"
@@ -88,7 +88,7 @@ def _print_help() -> None:
 
 
 def _authenticate_admin(*, attempts: int = 3) -> None:
-    """Require a valid admin id/password pair before the CLI launches."""
+    """Require a valid admin email/password pair before the CLI launches."""
 
     from backend.app import services
     from backend.app.storage import read_db
@@ -97,32 +97,27 @@ def _authenticate_admin(*, attempts: int = 3) -> None:
     snapshot = read_db()
     admin_records = {}
     for item in snapshot.get("admins", []):
-        identifier = item.get("id")
-        if not identifier:
+        email = item.get("email")
+        if not email:
             continue
-        try:
-            admin_uuid = uuid.UUID(identifier)
-        except (ValueError, TypeError):
-            continue
-        admin_records[admin_uuid] = item
+        admin_records[email.lower()] = item
     if not admin_records:
         print("No administrator accounts are configured.", file=sys.stderr)
         sys.exit(1)
 
     for _ in range(attempts):
         try:
-            admin_id_input = input("Admin id: ").strip()
+            admin_email_input = input("Admin email: ").strip()
         except (EOFError, KeyboardInterrupt):
             print()
             sys.exit(1)
 
-        try:
-            admin_id = uuid.UUID(admin_id_input)
-        except ValueError:
-            print("Invalid admin id format.")
+        if not admin_email_input:
+            print("Admin email is required.")
             continue
 
-        record = admin_records.get(admin_id)
+        admin_key = admin_email_input.lower()
+        record = admin_records.get(admin_key)
         if not record:
             print("Admin account not found.")
             continue
@@ -144,7 +139,7 @@ def _authenticate_admin(*, attempts: int = 3) -> None:
 
         if (
             auth_result.get("role") == "admin"
-            and auth_result.get("admin", {}).get("id") == str(admin_id)
+            and auth_result.get("admin", {}).get("email", "").lower() == admin_key
         ):
             return
 

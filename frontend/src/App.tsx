@@ -9,7 +9,6 @@ import AdminMemories from "./pages/AdminMemories";
 import AdminPayments from "./pages/AdminPayments";
 import AdminRequests from "./pages/AdminRequests";
 import AdminSupport from "./pages/AdminSupport";
-import AdminTokens from "./pages/AdminTokens";
 import AdminUsers from "./pages/AdminUsers";
 import AdminPricing from "./pages/AdminPricing";
 import AdminCreateAdmin from "./pages/AdminCreateAdmin";
@@ -20,6 +19,7 @@ import HealthProfile from "./pages/HealthProfile";
 import SupportCare from "./pages/SupportCare";
 import UserJourney from "./pages/UserJourney";
 import InsuranceEnrollment from "./pages/InsuranceEnrollment";
+import type { MiniaturizationStage, UserRecord } from "./api";
 
 type Role = "guest" | "human" | "admin";
 
@@ -29,9 +29,21 @@ type AdminSession = {
   name: string;
 };
 
+type UserStatus = UserRecord["status"];
+type HumanStage = MiniaturizationStage;
+
+type HumanAuthState = {
+  role: "human";
+  userId: string;
+  email: string;
+  name: string;
+  status: UserStatus;
+  stage: HumanStage;
+};
+
 type AuthState =
   | { role: "guest" }
-  | { role: "human"; userId: string; email: string; name: string }
+  | HumanAuthState
   | { role: "admin"; admin: AdminSession };
 
 type NavEntry = { label: string; path?: string; action?: () => void };
@@ -57,12 +69,22 @@ function loadAuthState(): AuthState {
     if (!raw) {
       return { role: "guest" };
     }
-    const parsed = JSON.parse(raw) as AuthState;
-    if (parsed.role === "human" && parsed.userId && parsed.email) {
-      return parsed;
+    const parsed = JSON.parse(raw) as Partial<HumanAuthState> | AuthState;
+    if (typeof parsed === "object" && parsed !== null && (parsed as AuthState).role === "human") {
+      const human = parsed as Partial<HumanAuthState>;
+      if (human.userId && human.email && human.name) {
+        return {
+          role: "human",
+          userId: human.userId,
+          email: human.email,
+          name: human.name,
+          status: (human.status ?? "pending_verification") as UserStatus,
+          stage: (human.stage ?? "signup") as HumanStage,
+        };
+      }
     }
-    if (parsed.role === "admin" && parsed.admin?.id) {
-      return parsed;
+    if ((parsed as AuthState)?.role === "admin" && (parsed as AuthState).admin?.id) {
+      return parsed as AuthState;
     }
   } catch (err) {
     console.warn("Failed to parse auth state", err);
@@ -79,6 +101,15 @@ function persistAuthState(state: AuthState): void {
     return;
   }
   window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(state));
+}
+
+const FINAL_ONBOARDING_STAGES: HumanStage[] = ["awaiting_procedure", "miniaturized"];
+
+function isOnboardingComplete(stage: HumanStage, status: UserStatus): boolean {
+  if (status !== "verified") {
+    return false;
+  }
+  return FINAL_ONBOARDING_STAGES.includes(stage);
 }
 
 function getStoredTheme(): ThemeMode {
@@ -140,9 +171,24 @@ export default function App(): JSX.Element {
     }
   }, [navigate, path]);
 
-  const handleHumanLogin = useCallback((payload: { userId: string; email: string; name: string }) => {
-    setAuth({ role: "human", ...payload });
-    navigate("/account");
+  useEffect(() => {
+    if (auth.role === "human" && !isOnboardingComplete(auth.stage, auth.status) && path === "/account") {
+      navigate("/account/onboarding");
+    }
+  }, [auth, navigate, path]);
+
+  const handleHumanLogin = useCallback((payload: { userId: string; email: string; name: string; status: UserStatus; stage: HumanStage }) => {
+    const nextAuth: HumanAuthState = {
+      role: "human",
+      userId: payload.userId,
+      email: payload.email,
+      name: payload.name,
+      status: payload.status,
+      stage: payload.stage,
+    };
+    setAuth(nextAuth);
+    const needsJourney = !isOnboardingComplete(payload.stage, payload.status);
+    navigate(needsJourney ? "/account/onboarding" : "/account");
   }, [navigate]);
 
   const handleAdminLogin = useCallback((admin: AdminSession) => {
@@ -163,6 +209,9 @@ export default function App(): JSX.Element {
       return items;
     }
     if (auth.role === "human") {
+      if (!isOnboardingComplete(auth.stage, auth.status)) {
+        items.push({ label: "Continue Onboarding", path: "/account/onboarding" });
+      }
       items.push({ label: "My Account", path: "/account" });
       items.push({ label: "Insurance", path: "/account/insurance" });
       items.push({ label: "Memory Forge", path: "/account/memory" });
@@ -174,7 +223,6 @@ export default function App(): JSX.Element {
     items.push({ label: "Admin Deck", path: "/admin" });
     items.push({ label: "Registry", path: "/admin/users" });
     items.push({ label: "Requests", path: "/admin/requests" });
-    items.push({ label: "Tokens", path: "/admin/tokens" });
     items.push({ label: "Memories", path: "/admin/memories" });
     items.push({ label: "Payments", path: "/admin/payments" });
     items.push({ label: "Pricing", path: "/admin/pricing" });
@@ -182,7 +230,19 @@ export default function App(): JSX.Element {
     items.push({ label: "Marova Vault", path: "/admin/marova" });
     items.push({ label: "Log Out", action: handleLogout });
     return items;
-  }, [auth.role, handleLogout]);
+  }, [auth.role, auth.status, auth.stage, handleLogout]);
+
+  const updateHumanStage = useCallback((stage: HumanStage, status: UserStatus) => {
+    setAuth(current => {
+      if (current.role !== "human") {
+        return current;
+      }
+      if (current.stage === stage && current.status === status) {
+        return current;
+      }
+      return { ...current, stage, status };
+    });
+  }, []);
 
   const navId = "app-primary-nav";
   const navClassName = "app__nav";
@@ -305,6 +365,18 @@ export default function App(): JSX.Element {
         return auth.role === "guest"
           ? <UserJourney />
           : <AccessDenied currentRole={auth.role} required="guest" onNavigate={navigate} />;
+      case "/account/onboarding":
+        return auth.role === "human"
+          ? (
+            <UserJourney
+              mode="resume"
+              userId={auth.userId}
+              userEmail={auth.email}
+              onStageUpdate={updateHumanStage}
+              onComplete={() => navigate("/account")}
+            />
+          )
+          : <AccessDenied currentRole={auth.role} required="human" onNavigate={navigate} />;
       case "/admin":
         return auth.role === "admin"
           ? <AdminDashboard onNavigate={navigate} />
@@ -320,10 +392,6 @@ export default function App(): JSX.Element {
       case "/admin/requests":
         return auth.role === "admin"
           ? <AdminRequests />
-          : <AccessDenied currentRole={auth.role} required="admin" onNavigate={navigate} />;
-      case "/admin/tokens":
-        return auth.role === "admin"
-          ? <AdminTokens />
           : <AccessDenied currentRole={auth.role} required="admin" onNavigate={navigate} />;
       case "/admin/memories":
         return auth.role === "admin"
@@ -386,7 +454,7 @@ export default function App(): JSX.Element {
       default:
         return <NotFound onNavigate={navigate} />;
     }
-  }, [auth, handleAdminLogin, handleHumanLogin, handleLogout, navigate, path]);
+  }, [auth, handleAdminLogin, handleHumanLogin, handleLogout, navigate, path, updateHumanStage]);
 
   useEffect(() => {
     setNavExpanded(false);

@@ -1,12 +1,19 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 
-import { loginAccount, requestPasswordReset, resetPassword } from "../api";
+import { loginAccount, requestPasswordReset, resetPassword, resendSignupOtp } from "../api";
+import type { UserRecord } from "../api";
 
 import "./Login.css";
 
 type LoginProps = {
   role: "guest" | "human" | "admin";
-  onHumanLogin: (payload: { userId: string; email: string; name: string }) => void;
+  onHumanLogin: (payload: {
+    userId: string;
+    email: string;
+    name: string;
+    status: UserRecord["status"];
+    stage: UserRecord["current_stage"];
+  }) => void;
   onAdminLogin: (admin: { id: string; email: string; name: string }) => void;
   onNavigate: (path: string) => void;
 };
@@ -46,10 +53,20 @@ export default function Login({ role, onHumanLogin, onAdminLogin, onNavigate }: 
         }
         const result = await loginAccount({ email, password });
         if (result.role === "human") {
+          if (result.user.status !== "verified" && !result.otp) {
+            try {
+              await resendSignupOtp(result.user.id);
+            } catch (resendError) {
+              console.warn("Failed to resend OTP", resendError);
+            }
+          }
+
           onHumanLogin({
             userId: result.user.id,
             email: result.user.email,
             name: result.user.name,
+            status: result.user.status,
+            stage: result.user.current_stage,
           });
         } else {
           onAdminLogin(result.admin);

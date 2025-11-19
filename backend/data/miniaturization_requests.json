@@ -1,1 +1,53 @@
-[]
+[
+  {
+    "id": "9ed32700-4e15-4476-996d-3b984879ba50",
+    "user_id": "5903bc26-7033-474d-b9e6-31caea1899f1",
+    "scale": 0.1,
+    "safety_answers": {
+      "environment": "",
+      "constraints": ""
+    },
+    "cost_usd": 9000.0,
+    "status": "awaiting_approval",
+    "created_at": "2025-11-19T13:53:05.536911+05:30",
+    "updated_at": "2025-11-19T13:53:05.536911+05:30",
+    "approved_at": null,
+    "completed_at": null,
+    "staff_health_rating": null,
+    "staff_health_rating_at": null
+  },
+  {
+    "id": "6d23898b-878b-4daa-a6ac-cc117a958e85",
+    "user_id": "3bb0e75e-c2a1-4f03-9781-087797fb8763",
+    "scale": 0.1,
+    "safety_answers": {
+      "environment": "",
+      "constraints": ""
+    },
+    "cost_usd": 9000.0,
+    "status": "awaiting_approval",
+    "created_at": "2025-11-19T14:13:01.471323+05:30",
+    "updated_at": "2025-11-19T14:13:01.471323+05:30",
+    "approved_at": null,
+    "completed_at": null,
+    "staff_health_rating": null,
+    "staff_health_rating_at": null
+  },
+  {
+    "id": "c1e91b13-d932-4775-a822-588df6b5050c",
+    "user_id": "35ad0677-1a54-40d4-8b3a-1995d475615e",
+    "scale": 0.1,
+    "safety_answers": {
+      "environment": "",
+      "constraints": ""
+    },
+    "cost_usd": 9000.0,
+    "status": "awaiting_approval",
+    "created_at": "2025-11-19T14:22:23.451778+05:30",
+    "updated_at": "2025-11-19T14:37:49.887327+05:30",
+    "approved_at": null,
+    "completed_at": null,
+    "staff_health_rating": 77,
+    "staff_health_rating_at": "2025-11-19T14:37:49.887327+05:30"
+  }
+]

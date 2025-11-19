@@ -493,6 +493,10 @@ export type LoginResponse =
   | {
       role: "human";
       user: UserRecord;
+      otp?: {
+        status: string;
+        expires_at: string;
+      };
     }
   | {
       role: "admin";
@@ -534,6 +538,15 @@ export async function submitHealthProfile(
   payload: HealthProfilePayload
 ): Promise<HealthProfileResponse> {
   return request<HealthProfileResponse>(`/users/${userId}/health-profile`, { method: "POST", body: payload });
+}
+
+export interface ResendOtpResponse {
+  status: string;
+  expires_at: string;
+}
+
+export async function resendSignupOtp(userId: string): Promise<ResendOtpResponse> {
+  return request<ResendOtpResponse>(`/users/${userId}/otp/resend`, { method: "POST" });
 }
 
 export async function loginAccount(payload: LoginPayload): Promise<LoginResponse> {
@@ -670,6 +683,11 @@ export async function fetchAdminOverview(): Promise<AdminOverview> {
   return request<AdminOverview>("/admin/overview");
 }
 
+export async function fetchAdminRequests(): Promise<MiniaturizationRequestRecord[]> {
+  const response = await request<{ requests: MiniaturizationRequestRecord[] }>("/admin/requests");
+  return response.requests;
+}
+
 export type SettingsUpdatePayload = Partial<SettingsRecord>;
 
 export async function updateSettings(payload: SettingsUpdatePayload): Promise<SettingsRecord> {
@@ -730,6 +748,11 @@ export interface InsurancePolicyQuoteResponse {
 export async function fetchInsurancePolicies(): Promise<InsurancePolicyRecord[]> {
   const response = await request<{ policies: InsurancePolicyRecord[] }>("/admin/insurance/policies");
   return response.policies;
+}
+
+export async function fetchAdminTokens(): Promise<MiniaturizationTokenRecord[]> {
+  const response = await request<{ tokens: MiniaturizationTokenRecord[] }>("/admin/tokens");
+  return response.tokens;
 }
 
 export async function createInsurancePolicy(payload: InsurancePolicyCreatePayload): Promise<InsurancePolicyActivationResponse> {

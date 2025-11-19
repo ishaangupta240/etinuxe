@@ -14,3 +14,6 @@ frontend/dist/
 # OS junk
 .DS_Store
 Thumbs.db
+
+# Database files
+backend/data/

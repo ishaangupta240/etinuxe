@@ -94,8 +94,9 @@ h4,
   flex-wrap: nowrap;
   align-items: center;
   gap: clamp(0.75rem, 2.5vw, 1.5rem);
-  margin: 12px;
+  margin: clamp(10px, 4vw, 18px) auto;
   border-radius: 12px;
+  width: min(1200px, calc(100% - 24px));
 }
 
 .app__title {
@@ -261,6 +262,7 @@ h4,
   .app__header {
     align-items: flex-start;
     flex-wrap: wrap;
+    gap: 12px;
   }
 
   .app__title-wrapper {
@@ -269,6 +271,7 @@ h4,
 
   .nav-toggle {
     display: inline-flex;
+    margin-left: auto;
   }
 
   .app__header-actions {
@@ -294,15 +297,14 @@ h4,
 
   .app__nav.app__nav--expanded {
     padding: 12px 0 8px;
-    max-height: 520px;
+    max-height: min(420px, 70vh);
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
   }
 
   .nav-item {
-    width: 100%;
-    max-width: 320px;
+    width: min(320px, 100%);
     justify-content: center;
     padding: 10px 12px;
   }
@@ -320,6 +322,54 @@ h4,
   .nav-item:focus-visible::after,
   .nav-item.is-active::after {
     transform: scaleX(1);
+  }
+}
+
+@media (max-width: 640px) {
+  .app__header {
+    padding: 18px;
+    width: calc(100% - 24px);
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "title toggle theme"
+      "nav nav nav";
+    align-items: center;
+    row-gap: 14px;
+    column-gap: 12px;
+  }
+
+  .app__title-wrapper {
+    flex: 0 0 auto;
+    grid-area: title;
+    justify-self: start;
+  }
+
+  .nav-toggle {
+    order: initial;
+    margin-left: 0;
+    grid-area: toggle;
+    justify-self: end;
+  }
+
+  .app__nav {
+    order: initial;
+    align-items: center;
+    grid-area: nav;
+    width: 100%;
+  }
+
+  .nav-item {
+    width: min(360px, 100%);
+    border-radius: 12px;
+  }
+
+  .app__header-actions {
+    order: initial;
+    grid-area: theme;
+    width: auto;
+    justify-content: flex-end;
   }
 }
 
@@ -549,6 +599,24 @@ h4,
   color: #6fe4a5;
 }
 
+.badge--health-normal {
+  border-color: rgba(255, 209, 102, 0.45);
+  background: rgba(255, 209, 102, 0.16);
+  color: #f3c969;
+}
+
+.badge--health-unhealthy {
+  border-color: rgba(255, 163, 112, 0.5);
+  background: rgba(255, 163, 112, 0.18);
+  color: #ffa370;
+}
+
+.badge--health-critical {
+  border-color: rgba(255, 112, 142, 0.5);
+  background: rgba(255, 112, 142, 0.18);
+  color: #ff708e;
+}
+
 .label {
   font-size: 0.75rem;
   letter-spacing: 0.1em;
@@ -639,6 +707,22 @@ select.input option {
 
 .stat-tile__value {
   font-size: 1.25rem;
+}
+
+.stat-tile__value--health-good {
+  color: #6fe4a5;
+}
+
+.stat-tile__value--health-normal {
+  color: #f3c969;
+}
+
+.stat-tile__value--health-unhealthy {
+  color: #ffa370;
+}
+
+.stat-tile__value--health-critical {
+  color: #ff708e;
 }
 
 .stat-tile__value--small {

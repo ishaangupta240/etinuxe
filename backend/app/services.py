@@ -1246,6 +1246,39 @@ def verify_user(payload: OTPVerification) -> User:
     return user
 
 
+def resend_signup_otp(user_id: uuid.UUID) -> OTPRecord:
+    db = read_db()
+    idx, user = _resolve_user(db, user_id)
+
+    if user.status == UserStatus.verified:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Account already verified")
+
+    now = _now()
+    otp = OTPRecord(
+        user_id=user.id,
+        code=_generate_otp(),
+        expires_at=now + timedelta(minutes=config.OTP_EXPIRY_MINUTES),
+    )
+
+    user.otp_id = otp.id
+    user.updated_at = now
+    db["users"][idx] = user.model_dump(mode="json")
+
+    otp_records = db.setdefault("otp_store", [])
+    for record in otp_records:
+        if record.get("user_id") == str(user_id):
+            record["consumed"] = True
+    otp_records.append(otp.model_dump(mode="json"))
+
+    try:
+        emailer.send_signup_otp(user, otp)
+    except emailer.EmailDispatchError as exc:  # pragma: no cover - network failure
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to deliver verification email") from exc
+
+    write_db(db)
+    return otp
+
+
 def submit_miniaturization_request(user_id: uuid.UUID, payload: MiniaturizationRequestInput) -> MiniaturizationRequest:
     db = read_db()
     idx, user = _resolve_user(db, user_id)
@@ -2306,7 +2339,17 @@ def authenticate(email: str, password: str) -> Dict[str, Any]:
         if not _password_matches(user.password_hash, password):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
         if user.status != UserStatus.verified:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account pending verification")
+            otp_record = resend_signup_otp(user.id)
+            refreshed_db = read_db()
+            _, refreshed_user = _resolve_user(refreshed_db, user.id)
+            return {
+                "role": "human",
+                "user": _public_user(refreshed_user),
+                "otp": {
+                    "status": "resent",
+                    "expires_at": otp_record.expires_at.isoformat(),
+                },
+            }
         return {
             "role": "human",
             "user": _public_user(user),
@@ -2437,6 +2480,27 @@ def get_organism_state() -> OrganismState:
     state = _persist_organism_state(db, snapshot)
     write_db(db)
     return state
+
+
+def set_auto_sleep_mode(enabled: bool) -> OrganismState:
+    db = read_db()
+    state = OrganismState.model_validate(db["organism_state"])
+    state = state.model_copy()
+
+    state.auto_sleep_enabled = enabled
+    if not enabled:
+        if state.sleep_session_started_at is not None:
+            state.sleep_session_started_at = None
+        if state.sleep_session_ends_at is not None:
+            state.sleep_session_ends_at = None
+        if state.sleep_phase == "sleeping":
+            state.sleep_phase = "awake"
+
+    db["organism_state"] = state.model_dump(mode="json")
+    snapshot = _ensure_auto_sleep_state(db, state)
+    result = _persist_organism_state(db, snapshot)
+    write_db(db)
+    return result
 
 
 def get_organism_telemetry(limit: int = TELEMETRY_LIMIT) -> Dict[str, Any]:

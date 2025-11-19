@@ -4,6 +4,33 @@ import { fetchUserOverview, InsurancePolicyRecord, UserOverview } from "../api";
 
 import "./Account.css";
 
+type HealthBucketKey = "good" | "normal" | "unhealthy" | "extremely_unhealthy";
+
+const HEALTH_BADGE_CLASS: Record<HealthBucketKey, string> = {
+  good: "badge--positive",
+  normal: "badge--health-normal",
+  unhealthy: "badge--health-unhealthy",
+  extremely_unhealthy: "badge--health-critical",
+};
+
+const HEALTH_VALUE_CLASS: Record<HealthBucketKey, string> = {
+  good: "stat-tile__value--health-good",
+  normal: "stat-tile__value--health-normal",
+  unhealthy: "stat-tile__value--health-unhealthy",
+  extremely_unhealthy: "stat-tile__value--health-critical",
+};
+
+function resolveHealthBucket(bucket: string | null | undefined): HealthBucketKey | null {
+  if (!bucket) {
+    return null;
+  }
+  const normalized = bucket.toLowerCase();
+  if (Object.prototype.hasOwnProperty.call(HEALTH_BADGE_CLASS, normalized)) {
+    return normalized as HealthBucketKey;
+  }
+  return null;
+}
+
 type AccountProps = {
   userId: string;
   email: string;
@@ -37,8 +64,11 @@ export default function Account({ userId, email, name, onLogout, onNavigate }: A
   const stageLabel = overview ? overview.user.current_stage.replace(/_/g, " ") : "Awaiting stage";
   const statusLabel = overview ? overview.user.status.replace(/_/g, " ") : "Status pending";
   const healthProfile = overview?.health_profile ?? null;
-  const healthLabel = healthProfile ? healthProfile.bucket_label : "Awaiting health data";
-  const healthScore = healthProfile ? healthProfile.health_score : null;
+  const hasHealthData = Boolean(healthProfile?.health_inputs);
+  const healthBucketKey = hasHealthData ? resolveHealthBucket(healthProfile?.health_bucket) : null;
+  const healthLabel = hasHealthData && healthProfile ? healthProfile.bucket_label : "Awaiting vitals";
+  const healthScore = hasHealthData && healthProfile ? healthProfile.health_score : null;
+  const healthBadgeClass = healthBucketKey ? HEALTH_BADGE_CLASS[healthBucketKey] : "";
   const activePolicyCount = (overview?.insurance_policies ?? []).filter(policy => policy.status === "active").length;
 
   return (
@@ -53,12 +83,12 @@ export default function Account({ userId, email, name, onLogout, onNavigate }: A
         <div className="account__status-row">
           <span className="badge">Stage: {stageLabel.toUpperCase()}</span>
           <span className="badge">Status: {statusLabel.toUpperCase()}</span>
-          <span className="badge">Health: {healthLabel.toUpperCase()}</span>
+          <span className={`badge${healthBadgeClass ? ` ${healthBadgeClass}` : ""}`}>Health: {healthLabel.toUpperCase()}</span>
           <span className={`badge${activePolicyCount > 0 ? " badge--positive" : ""}`}>
             Insurance: {activePolicyCount > 0 ? `${activePolicyCount} active` : "not active"}
           </span>
           {healthScore !== null ? (
-            <span className="badge badge--positive">
+            <span className={`badge${healthBadgeClass ? ` ${healthBadgeClass}` : ""}`}>
               Score: {healthScore}
             </span>
           ) : null}
@@ -154,6 +184,11 @@ function NavigationPanel({
 }): JSX.Element {
   const summary = overview?.memory_summary ?? null;
   const health = overview?.health_profile ?? null;
+  const hasHealthData = Boolean(health?.health_inputs);
+  const bucketKey = hasHealthData ? resolveHealthBucket(health?.health_bucket) : null;
+  const healthValueClass = bucketKey ? HEALTH_VALUE_CLASS[bucketKey] : "";
+  const healthScoreDisplay = loading ? "..." : hasHealthData && health ? String(health.health_score) : "--";
+  const healthHint = hasHealthData && health ? health.bucket_label : "Awaiting vitals";
 
   return (
     <section className="surface-card account__panel">
@@ -229,8 +264,8 @@ function NavigationPanel({
         </div>
         <div className="stat-tile">
           <span className="label label--secondary">Health Score</span>
-          <strong className="stat-tile__value">{health ? health.health_score : loading ? "..." : "--"}</strong>
-          <span className="stat-tile__hint text-secondary">{health ? health.bucket_label : "Awaiting vitals"}</span>
+          <strong className={`stat-tile__value${healthValueClass ? ` ${healthValueClass}` : ""}`}>{healthScoreDisplay}</strong>
+          <span className="stat-tile__hint text-secondary">{healthHint}</span>
         </div>
       </div>
     </section>

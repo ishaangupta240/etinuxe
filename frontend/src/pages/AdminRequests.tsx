@@ -2,8 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   fetchUserOverview,
+  fetchAdminRequests,
+  fetchAdminTokens,
+  MiniaturizationRequestRecord,
   MiniaturizationStatus,
+  MiniaturizationTokenRecord,
   updateRequestHealthRating,
+  updateTokenStatus,
   UserOverview,
 } from "../api";
 import { useAdminOverview } from "../hooks/useAdminOverview";
@@ -23,6 +28,14 @@ const statusOptions: Array<"all" | MiniaturizationStatus> = [
 
 export default function AdminRequests(): JSX.Element {
   const { overview, loading, error, refresh, setOverview } = useAdminOverview();
+  const [requestRows, setRequestRows] = useState<MiniaturizationRequestRecord[]>([]);
+  const [requestsLoading, setRequestsLoading] = useState(false);
+  const [requestsError, setRequestsError] = useState<string | null>(null);
+  const [tokenRows, setTokenRows] = useState<MiniaturizationTokenRecord[]>([]);
+  const [tokensLoading, setTokensLoading] = useState(false);
+  const [tokensError, setTokensError] = useState<string | null>(null);
+  const [tokensLoaded, setTokensLoaded] = useState(false);
+  const [tokenUpdatingId, setTokenUpdatingId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"all" | MiniaturizationStatus>("all");
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
@@ -36,7 +49,8 @@ export default function AdminRequests(): JSX.Element {
   const [userError, setUserError] = useState<string | null>(null);
   const [userRefreshCounter, setUserRefreshCounter] = useState(0);
 
-  const requests = overview?.requests ?? [];
+  const requests = requestRows;
+  const tokens = tokenRows;
   const userNameMap = useMemo(() => {
     const map: Record<string, string> = {};
     (overview?.users ?? []).forEach(user => {
@@ -67,6 +81,69 @@ export default function AdminRequests(): JSX.Element {
       );
     });
   }, [query, requests, status]);
+
+  const tokensByRequestId = useMemo(() => {
+    const map: Record<string, MiniaturizationTokenRecord[]> = {};
+    tokenRows.forEach(token => {
+      if (!map[token.request_id]) {
+        map[token.request_id] = [];
+      }
+      map[token.request_id].push(token);
+    });
+    return map;
+  }, [tokenRows]);
+
+  const loadRequests = useCallback(async () => {
+    setRequestsLoading(true);
+    setRequestsError(null);
+    try {
+      const data = await fetchAdminRequests();
+      setRequestRows(data);
+      setOverview(prev => (prev ? { ...prev, requests: data } : prev));
+    } catch (err) {
+      setRequestsError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setRequestsLoading(false);
+    }
+  }, [setOverview]);
+
+  const loadTokens = useCallback(async () => {
+    setTokensLoading(true);
+    setTokensError(null);
+    try {
+      const data = await fetchAdminTokens();
+      setTokenRows(data);
+      setOverview(prev => (prev ? { ...prev, miniaturization_tokens: data } : prev));
+    } catch (err) {
+      setTokensError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setTokensLoading(false);
+      setTokensLoaded(true);
+    }
+  }, [setOverview]);
+
+  useEffect(() => {
+    if (!overview?.requests) {
+      return;
+    }
+    setRequestRows(current => (current.length === 0 ? overview.requests : current));
+  }, [overview?.requests]);
+
+  useEffect(() => {
+    if (!overview?.miniaturization_tokens) {
+      return;
+    }
+    setTokenRows(current => (current.length === 0 ? overview.miniaturization_tokens : current));
+    setTokensLoaded(true);
+  }, [overview?.miniaturization_tokens]);
+
+  useEffect(() => {
+    void loadRequests();
+  }, [loadRequests]);
+
+  useEffect(() => {
+    void loadTokens();
+  }, [loadTokens]);
 
   useEffect(() => {
     if (filtered.length === 0) {
@@ -187,24 +264,51 @@ export default function AdminRequests(): JSX.Element {
           },
         };
       });
+      setRequestRows(prev => {
+        const index = prev.findIndex(item => item.id === response.request.id);
+        if (index === -1) {
+          return [...prev, response.request];
+        }
+        const copy = [...prev];
+        copy[index] = response.request;
+        return copy;
+      });
       setRatingFeedback("Health rating saved.");
       setRatingDraft(response.request.staff_health_rating != null ? String(response.request.staff_health_rating) : "");
       setUserRefreshCounter(counter => counter + 1);
+      void loadRequests();
     } catch (err) {
       setRatingError(err instanceof Error ? err.message : String(err));
     } finally {
       setRatingSaving(false);
     }
-  }, [ratingDraft, selectedRequest, setOverview]);
+  }, [loadRequests, ratingDraft, selectedRequest, setOverview]);
 
-  if (loading) {
+  const handleTokenStatusUpdate = useCallback(
+    async (tokenId: string, status: MiniaturizationStatus) => {
+      setTokensError(null);
+      setTokenUpdatingId(tokenId);
+      try {
+        await updateTokenStatus(tokenId, status);
+        await Promise.all([refresh(), loadTokens(), loadRequests()]);
+      } catch (err) {
+        setTokensError(err instanceof Error ? err.message : String(err));
+      } finally {
+        setTokenUpdatingId(null);
+      }
+    },
+    [loadRequests, loadTokens, refresh]
+  );
+
+  const initialLoading = (loading || requestsLoading || tokensLoading) && requests.length === 0 && tokens.length === 0;
+  if (initialLoading) {
     return <section className="surface-card admin-panel text-secondary">Synchronizing request queue...</section>;
   }
 
-  if (error) {
+  if ((error || requestsError || tokensError) && requests.length === 0 && tokens.length === 0) {
     return (
       <section className="surface-card admin-panel admin-panel--error">
-        <p className="admin-requests__message">{error}</p>
+        <p className="admin-requests__message">{error ?? requestsError ?? tokensError}</p>
       </section>
     );
   }
@@ -224,11 +328,26 @@ export default function AdminRequests(): JSX.Element {
             onChange={event => setQuery(event.target.value)}
             className="search-input"
           />
-          <button type="button" className="pill-button pill-button--regular" onClick={() => void refresh()}>
+          <button
+            type="button"
+            className="pill-button pill-button--regular"
+            onClick={() => {
+              void refresh();
+              void loadRequests();
+              void loadTokens();
+            }}
+          >
             Refresh
           </button>
         </div>
       </header>
+
+      {requestsError && requests.length > 0 && (
+        <p className="admin-requests__message text-danger">Failed to refresh requests: {requestsError}</p>
+      )}
+      {tokensError && (
+        <p className="admin-requests__message text-danger">Miniaturization tokens out of sync: {tokensError}</p>
+      )}
 
       <div className="admin-requests__status">
         {statusOptions.map(option => (
@@ -255,6 +374,8 @@ export default function AdminRequests(): JSX.Element {
             <div className="admin-card-grid admin-requests__grid">
               {filtered.map(request => {
                 const isSelected = request.id === selectedRequestId;
+                const tokensForRequest = tokensByRequestId[request.id] ?? [];
+                const tokensLoadingForView = !tokensLoaded && tokensForRequest.length === 0;
                 return (
                   <article
                     key={request.id}
@@ -279,6 +400,38 @@ export default function AdminRequests(): JSX.Element {
                     <p className="admin-inline-meta">
                       Submitted {new Date(request.created_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}
                     </p>
+                    <div
+                      className="admin-request-card__tokens"
+                      onClick={event => event.stopPropagation()}
+                    >
+                      <span className="admin-inline-meta admin-request-card__tokens-label">Miniaturization tokens</span>
+                      {tokensLoadingForView ? (
+                        <p className="admin-inline-meta text-secondary">Loading token assignments…</p>
+                      ) : tokensForRequest.length === 0 ? (
+                        <p className="admin-inline-meta text-secondary">No tokens issued yet.</p>
+                      ) : (
+                        tokensForRequest.map(token => (
+                          <div key={token.id} className="admin-request-card__token">
+                            <div className="admin-request-card__token-header">
+                              <span className="admin-inline-meta">Token {token.id.slice(0, 10)}…</span>
+                              <span className={`admin-status-chip admin-status-chip--${token.status.replace(/_/g, "-")}`}>
+                                {token.status.replace(/_/g, " ")}
+                              </span>
+                            </div>
+                            <p className="admin-inline-meta">
+                              Issued {new Date(token.created_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}
+                            </p>
+                            <div className="admin-request-card__token-actions">
+                              <TokenActions
+                                current={token.status}
+                                busy={tokenUpdatingId === token.id}
+                                onChange={next => void handleTokenStatusUpdate(token.id, next)}
+                              />
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
                     <div className="admin-request-card__actions">
                       <button
                         type="button"
@@ -402,5 +555,41 @@ export default function AdminRequests(): JSX.Element {
         error={userError}
       />
     </section>
+  );
+}
+
+function TokenActions({
+  current,
+  busy,
+  onChange,
+}: {
+  current: MiniaturizationStatus;
+  busy: boolean;
+  onChange: (status: MiniaturizationStatus) => void;
+}): JSX.Element {
+  const options: MiniaturizationStatus[] = ["awaiting_approval", "approved", "rejected", "completed"];
+  return (
+    <div className="admin-requests__token-control">
+      <select
+        value={current}
+        onChange={event => onChange(event.target.value as MiniaturizationStatus)}
+        disabled={busy}
+        className="input"
+      >
+        {options.map(option => (
+          <option key={option} value={option}>
+            {option.replace(/_/g, " ")}
+          </option>
+        ))}
+      </select>
+      <button
+        type="button"
+        className="pill-button pill-button--slim"
+        onClick={() => onChange("completed")}
+        disabled={busy || current === "completed"}
+      >
+        {busy ? "Updating…" : "Mark Complete"}
+      </button>
+    </div>
   );
 }

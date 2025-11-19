@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   AssessmentPayload,
@@ -14,6 +14,9 @@ import {
   submitMiniaturizationRequest,
   TokenIssueResponse,
   UserOverview,
+  MiniaturizationStage,
+  UserRecord,
+  resendSignupOtp,
   verifyHuman,
 } from "../api";
 
@@ -29,6 +32,47 @@ type JourneyStep =
   | "assessment"
   | "token"
   | "complete";
+
+type UserJourneyProps = {
+  mode?: "new" | "resume";
+  userId?: string;
+  userEmail?: string;
+  onStageUpdate?: (stage: MiniaturizationStage, status: UserRecord["status"]) => void;
+  onComplete?: () => void;
+};
+
+const OTP_COOLDOWN_SECONDS = 60;
+const FINALIZED_STAGES = new Set<MiniaturizationStage>(["awaiting_procedure", "miniaturized"]);
+
+function resolveJourneyStep(overview: UserOverview): JourneyStep {
+  const { user } = overview;
+  if (user.status !== "verified") {
+    return "verify";
+  }
+
+  const hasBodyProfile = Boolean(user.body_profile);
+  const hasRequest = overview.requests.length > 0;
+  const hasPayment = overview.payments.length > 0;
+  const hasDnaToken = overview.dna_tokens.length > 0;
+  const hasMiniToken = overview.miniaturization_tokens.length > 0;
+
+  if (!hasBodyProfile) {
+    return "intake";
+  }
+  if (!hasRequest) {
+    return "mini";
+  }
+  if (!hasPayment) {
+    return "payment";
+  }
+  if (!hasDnaToken) {
+    return "assessment";
+  }
+  if (!hasMiniToken) {
+    return "token";
+  }
+  return "complete";
+}
 
 type SignupFormState = {
   email: string;
@@ -161,14 +205,18 @@ function Timeline({ overview }: { overview: UserOverview | null }): JSX.Element 
   );
 }
 
-export default function UserJourney(): JSX.Element {
-  const [step, setStep] = useState<JourneyStep>("signup");
+export default function UserJourney(props: UserJourneyProps = {}): JSX.Element {
+  const { mode = "new", userId: initialUserId, userEmail, onStageUpdate, onComplete } = props;
+
+  const [step, setStep] = useState<JourneyStep>(mode === "resume" ? "verify" : "signup");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [statusLog, setStatusLog] = useState<string[]>([]);
 
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(() => initialUserId ?? null);
   const [otpInput, setOtpInput] = useState("");
+  const [otpCooldown, setOtpCooldown] = useState<number>(0);
+  const [resendBusy, setResendBusy] = useState(false);
 
   const [requestId, setRequestId] = useState<string | null>(null);
   const [estimatedCost, setEstimatedCost] = useState<number | null>(null);
@@ -178,28 +226,18 @@ export default function UserJourney(): JSX.Element {
   const [issuedToken, setIssuedToken] = useState<TokenIssueResponse | null>(null);
   const [overview, setOverview] = useState<UserOverview | null>(null);
 
+  const previousStageRef = useRef<MiniaturizationStage | null>(null);
+  const initialHydrateRef = useRef(false);
+  const completionNotifiedRef = useRef(false);
+  const initialFetchRef = useRef(false);
+  const verifyPrimedRef = useRef(false);
+
   const log = useCallback((message: string) => {
     setStatusLog(logs => [message, ...logs.slice(0, 8)]);
   }, []);
 
-  const refreshOverview = useCallback(async () => {
-    if (!userId) {
-      return;
-    }
-    try {
-      const data = await fetchUserOverview(userId);
-      setOverview(data);
-    } catch (err) {
-      console.error(err);
-    }
-  }, [userId]);
-
-  useEffect(() => {
-    void refreshOverview();
-  }, [refreshOverview, step]);
-
   const [signupForm, setSignupForm] = useState<SignupFormState>({
-    email: "",
+    email: userEmail ?? "",
     name: "",
     password: "",
     location: "",
@@ -263,10 +301,215 @@ export default function UserJourney(): JSX.Element {
   );
 
   useEffect(() => {
-    if (estimatedCost) {
+    if (estimatedCost !== null && paymentAmount.trim().length === 0) {
       setPaymentAmount(estimatedCost.toFixed(2));
     }
-  }, [estimatedCost]);
+  }, [estimatedCost, paymentAmount]);
+
+  const hydrateFromOverview = useCallback(
+    (data: UserOverview, context: "initial" | "sync" = "sync") => {
+      setOverview(data);
+      setUserId(data.user.id);
+
+      onStageUpdate?.(data.user.current_stage, data.user.status);
+
+      const nextStep = resolveJourneyStep(data);
+      setStep(nextStep);
+
+      const previousStage = previousStageRef.current;
+      const stageChanged = previousStage !== null && previousStage !== data.user.current_stage;
+      if (context === "initial" && mode === "resume" && !initialHydrateRef.current) {
+        log(`Continuing at stage ${data.user.current_stage.toUpperCase()}.`);
+        initialHydrateRef.current = true;
+      } else if (stageChanged) {
+        log(`Stage advanced to ${data.user.current_stage.toUpperCase()}.`);
+      }
+      previousStageRef.current = data.user.current_stage;
+
+      if (nextStep !== "verify") {
+        setOtpCooldown(0);
+        setOtpInput("");
+      }
+
+      setSignupForm(prev => ({
+        ...prev,
+        email: data.user.email ?? prev.email,
+        name: data.user.name ?? prev.name,
+        location: data.user.location ?? prev.location,
+      }));
+
+      const body = data.user.body_profile;
+      const survey = data.health_profile?.health_inputs;
+
+      setHealthForm(prev => ({
+        ...prev,
+        height_cm:
+          body?.height_cm !== undefined && body.height_cm !== null
+            ? String(body.height_cm)
+            : prev.height_cm,
+        weight_kg:
+          body?.weight_kg !== undefined && body.weight_kg !== null
+            ? String(body.weight_kg)
+            : prev.weight_kg,
+        blood_type: body?.blood_type ?? prev.blood_type,
+        allergies: Array.isArray(body?.allergies)
+          ? body?.allergies.join(", ")
+          : body?.allergies === null
+            ? ""
+            : prev.allergies,
+        notes: body?.notes ?? prev.notes,
+        respiration_rate: String(data.user.respiration_rate),
+        energy_consumption: String(data.user.energy_consumption),
+        medical_history:
+          data.health_profile?.medical_history ?? data.user.medical_history ?? prev.medical_history,
+        sleep_hours:
+          survey?.sleep_hours !== undefined
+            ? String(survey.sleep_hours)
+            : prev.sleep_hours,
+        exercise_minutes_per_week:
+          survey?.exercise_minutes_per_week !== undefined
+            ? String(survey.exercise_minutes_per_week)
+            : prev.exercise_minutes_per_week,
+        diet_quality:
+          survey?.diet_quality !== undefined
+            ? String(survey.diet_quality)
+            : prev.diet_quality,
+        stress_level:
+          survey?.stress_level !== undefined
+            ? String(survey.stress_level)
+            : prev.stress_level,
+        chronic_condition: survey?.chronic_condition ?? prev.chronic_condition,
+        alcohol_units_per_week:
+          survey?.alcohol_units_per_week !== undefined
+            ? String(survey.alcohol_units_per_week)
+            : prev.alcohol_units_per_week,
+        smoker: survey?.smoker ?? prev.smoker,
+        meditation_minutes_per_week:
+          survey?.meditation_minutes_per_week !== undefined
+            ? String(survey.meditation_minutes_per_week)
+            : prev.meditation_minutes_per_week,
+        hydration_liters_per_day:
+          survey?.hydration_liters_per_day !== undefined
+            ? String(survey.hydration_liters_per_day)
+            : prev.hydration_liters_per_day,
+      }));
+
+      const latestRequest = data.requests.length > 0 ? data.requests[data.requests.length - 1] : null;
+      if (latestRequest) {
+        setMiniForm(prev => ({
+          ...prev,
+          scale: String(latestRequest.scale),
+          environment: latestRequest.safety_answers?.environment ?? "",
+          constraints: latestRequest.safety_answers?.constraints ?? "",
+        }));
+      }
+      setRequestId(latestRequest ? latestRequest.id : null);
+      setEstimatedCost(latestRequest ? latestRequest.cost_usd : null);
+
+      const latestPayment = data.payments.length > 0 ? data.payments[data.payments.length - 1] : null;
+      if (latestPayment) {
+        setPaymentAmount(latestPayment.amount_usd.toFixed(2));
+      } else if (latestRequest) {
+        setPaymentAmount(latestRequest.cost_usd.toFixed(2));
+      } else {
+        setPaymentAmount("");
+      }
+
+      const latestDnaToken = data.dna_tokens.length > 0 ? data.dna_tokens[data.dna_tokens.length - 1] : null;
+      setDnaTokenId(latestDnaToken ? latestDnaToken.id : null);
+
+      const latestAssessment = data.assessments.length > 0 ? data.assessments[data.assessments.length - 1] : null;
+      if (latestAssessment) {
+        const profile = latestAssessment.emotional_profile ?? {};
+        setAssessmentForm(prev => ({
+          ...prev,
+          joy: profile.joy !== undefined ? String(profile.joy) : prev.joy,
+          calm: profile.calm !== undefined ? String(profile.calm) : prev.calm,
+          dread: profile.dread !== undefined ? String(profile.dread) : prev.dread,
+          narrative: latestAssessment.narrative ?? prev.narrative,
+        }));
+      }
+
+      const latestMiniToken =
+        data.miniaturization_tokens.length > 0
+          ? data.miniaturization_tokens[data.miniaturization_tokens.length - 1]
+          : null;
+      setIssuedToken(
+        latestMiniToken
+          ? {
+              token_id: latestMiniToken.id,
+              status: latestMiniToken.status,
+            }
+          : null
+      );
+
+      if (nextStep === "complete" && FINALIZED_STAGES.has(data.user.current_stage) && onComplete && !completionNotifiedRef.current) {
+        completionNotifiedRef.current = true;
+        onComplete();
+      }
+    },
+    [log, mode, onComplete, onStageUpdate]
+  );
+
+  const refreshOverview = useCallback(
+    async (context: "initial" | "sync" = "sync") => {
+      if (!userId) {
+        return;
+      }
+      try {
+        const data = await fetchUserOverview(userId);
+        hydrateFromOverview(data, context);
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    [hydrateFromOverview, userId]
+  );
+
+  useEffect(() => {
+    if (mode !== "resume" || !userEmail) {
+      return;
+    }
+    log(`Continuing onboarding for ${userEmail}.`);
+  }, [log, mode, userEmail]);
+
+  useEffect(() => {
+    if (mode !== "resume" || !userEmail) {
+      return;
+    }
+    setSignupForm(prev => ({ ...prev, email: userEmail }));
+  }, [mode, userEmail]);
+
+  useEffect(() => {
+    if (mode !== "resume" || !userId || initialFetchRef.current) {
+      return;
+    }
+    initialFetchRef.current = true;
+    void refreshOverview("initial");
+  }, [mode, refreshOverview, userId]);
+
+  useEffect(() => {
+    if (step !== "verify") {
+      verifyPrimedRef.current = false;
+      return;
+    }
+    if (!verifyPrimedRef.current) {
+      verifyPrimedRef.current = true;
+      setOtpCooldown(current => (current > 0 ? current : OTP_COOLDOWN_SECONDS));
+    }
+  }, [step]);
+
+  useEffect(() => {
+    if (otpCooldown <= 0) {
+      return;
+    }
+    const timer = window.setInterval(() => {
+      setOtpCooldown(current => (current <= 1 ? 0 : current - 1));
+    }, 1000);
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [otpCooldown]);
 
   const canProceed = useMemo(() => {
     switch (step) {
@@ -356,6 +599,7 @@ export default function UserJourney(): JSX.Element {
         const response = await signupHuman(payload);
         setUserId(response.user_id);
         setStep("verify");
+        setOtpCooldown(OTP_COOLDOWN_SECONDS);
         log(`OTP dispatched to ${signupForm.email}`);
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
@@ -375,18 +619,41 @@ export default function UserJourney(): JSX.Element {
       setBusy(true);
       setError(null);
       try {
-        await verifyHuman({ user_id: userId, otp_code: otpInput });
+        const response = await verifyHuman({ user_id: userId, otp_code: otpInput });
         log("Identity verified. Continue with health intake.");
+        onStageUpdate?.(
+          response.stage,
+          response.status === "verified" ? "verified" : "pending_verification"
+        );
         setStep("intake");
         setOtpInput("");
+        setOtpCooldown(0);
+        void refreshOverview();
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
       } finally {
         setBusy(false);
       }
     },
-    [log, otpInput, userId]
+    [log, onStageUpdate, otpInput, refreshOverview, userId]
   );
+
+  const handleResendOtp = useCallback(async () => {
+    if (!userId) {
+      return;
+    }
+    setResendBusy(true);
+    setError(null);
+    try {
+      await resendSignupOtp(userId);
+      setOtpCooldown(OTP_COOLDOWN_SECONDS);
+      log("OTP regenerated and dispatched.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setResendBusy(false);
+    }
+  }, [log, userId]);
 
   const handleIntake = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -458,15 +725,18 @@ export default function UserJourney(): JSX.Element {
         const response = await submitMiniaturizationRequest(userId, payload);
         setRequestId(response.request_id);
         setEstimatedCost(response.cost_usd);
+        setPaymentAmount(response.cost_usd.toFixed(2));
         log(`Miniaturization request filed. Estimated cost $${response.cost_usd.toFixed(2)}.`);
+        onStageUpdate?.("request_submitted", "verified");
         setStep("payment");
+        void refreshOverview();
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
       } finally {
         setBusy(false);
       }
     },
-    [log, miniForm.constraints, miniForm.environment, miniForm.scale, userId]
+    [log, miniForm.constraints, miniForm.environment, miniForm.scale, onStageUpdate, refreshOverview, userId]
   );
 
   const handlePayment = useCallback(
@@ -480,14 +750,16 @@ export default function UserJourney(): JSX.Element {
       try {
         await recordPayment(userId, { request_id: requestId, amount_usd: Number(paymentAmount) });
         log("Invoice settled. DNA vault intake commencing.");
+        onStageUpdate?.("payment_captured", "verified");
         setStep("assessment");
+        void refreshOverview();
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
       } finally {
         setBusy(false);
       }
     },
-    [log, paymentAmount, requestId, userId]
+    [log, onStageUpdate, paymentAmount, refreshOverview, requestId, userId]
   );
 
   const handleAssessment = useCallback(
@@ -511,14 +783,16 @@ export default function UserJourney(): JSX.Element {
         const response = await recordAssessment(userId, payload);
         setDnaTokenId(response.dna_token_id);
         log("DNA token sealed within the Vault.");
+        onStageUpdate?.("assessment_complete", "verified");
         setStep("token");
+        void refreshOverview();
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
       } finally {
         setBusy(false);
       }
     },
-    [assessmentForm.calm, assessmentForm.dread, assessmentForm.joy, assessmentForm.narrative, log, userId]
+    [assessmentForm.calm, assessmentForm.dread, assessmentForm.joy, assessmentForm.narrative, log, onStageUpdate, refreshOverview, userId]
   );
 
   const handleTokenIssue = useCallback(
@@ -536,15 +810,20 @@ export default function UserJourney(): JSX.Element {
         });
         setIssuedToken(response);
         log("Miniaturization token minted. Awaiting vault clearance.");
+        onStageUpdate?.("awaiting_procedure", "verified");
         setStep("complete");
         void refreshOverview();
+        if (onComplete && !completionNotifiedRef.current) {
+          completionNotifiedRef.current = true;
+          onComplete();
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
       } finally {
         setBusy(false);
       }
     },
-    [dnaTokenId, log, refreshOverview, requestId, userId]
+    [dnaTokenId, log, onComplete, onStageUpdate, refreshOverview, requestId, userId]
   );
 
   return (
@@ -578,7 +857,7 @@ export default function UserJourney(): JSX.Element {
                   required
                 />
                 <span className="user-journey__hint">
-                  Minimum {passwordRequirement} characters. Use a unique passphrase for the vault.
+                  Minimum {passwordRequirement} characters.
                 </span>
               </label>
               <label className="user-journey__field">
@@ -630,7 +909,9 @@ export default function UserJourney(): JSX.Element {
             data-scroll-fade
           >
             <SectionTitle step={step} title="Verify Access" />
-            <p className="text-secondary">Enter the six-digit OTP dispatched to your inbox.</p>
+            <p className="text-secondary">
+              Enter the six-digit OTP dispatched to {signupForm.email ? signupForm.email : "your inbox"}.
+            </p>
             <form className="user-journey__inline-form" onSubmit={handleVerify} autoComplete="off">
               <input
                 className="input user-journey__otp-input"
@@ -649,6 +930,21 @@ export default function UserJourney(): JSX.Element {
                 {busy ? "Authenticating…" : "Validate"}
               </button>
             </form>
+            <div className="user-journey__controls">
+              <button
+                type="button"
+                className="pill-button pill-button--ghost user-journey__button"
+                onClick={() => void handleResendOtp()}
+                disabled={!userId || resendBusy || otpCooldown > 0 || busy}
+              >
+                {resendBusy ? "Sending…" : otpCooldown > 0 ? `Resend in ${otpCooldown}s` : "Resend OTP"}
+              </button>
+              <span className="text-secondary">
+                {otpCooldown > 0
+                  ? "A new code is available once the timer completes."
+                  : "Need another code? You can request a resend every 60 seconds."}
+              </span>
+            </div>
           </section>
         )}
 
@@ -922,15 +1218,13 @@ export default function UserJourney(): JSX.Element {
                 min={0}
                 step={0.01}
                 value={paymentAmount}
-                onChange={event => {
-                  const value = event.currentTarget.value;
-                  setPaymentAmount(value);
-                }}
+                readOnly
               />
               <button type="submit" className="pill-button user-journey__button" disabled={!canProceed || busy}>
                 {busy ? "Processing…" : "Capture Payment"}
               </button>
             </form>
+            <p className="user-journey__hint">Amount is auto-calculated from your miniaturization request.</p>
           </section>
         )}
 

@@ -45,16 +45,10 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps): JSX
       metric: `${overview.users.length} records`,
     },
     {
-      title: "Requests",
-      description: "Audit incoming miniaturization requests with scaling preferences.",
+      title: "Requests & Tokens",
+      description: "Audit requests and manage token approvals from a unified console.",
       path: "/admin/requests",
-      metric: `${overview.requests.length} entries`,
-    },
-    {
-      title: "Tokens",
-      description: "Approve, reject, or finalize DNA-bound miniaturization tokens.",
-      path: "/admin/tokens",
-      metric: `${overview.miniaturization_tokens.length} tokens`,
+      metric: `${overview.requests.length} requests · ${overview.miniaturization_tokens.length} tokens`,
     },
     {
       title: "Memory Vault",
