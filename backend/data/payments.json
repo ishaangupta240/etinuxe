@@ -1,32 +1,3 @@
 [
-  {
-    "id": "95ecf746-621c-4cb5-80c6-9543c43442ac",
-    "user_id": "5903bc26-7033-474d-b9e6-31caea1899f1",
-    "request_id": "9ed32700-4e15-4476-996d-3b984879ba50",
-    "amount_usd": 9000.0,
-    "currency": "USD",
-    "status": "captured",
-    "created_at": "2025-11-19T14:02:08.175102+05:30",
-    "paid_at": "2025-11-19T14:02:08.175102+05:30"
-  },
-  {
-    "id": "d818ac3a-30e3-43ec-80a2-2d77ec7fd82b",
-    "user_id": "3bb0e75e-c2a1-4f03-9781-087797fb8763",
-    "request_id": "6d23898b-878b-4daa-a6ac-cc117a958e85",
-    "amount_usd": 9000.0,
-    "currency": "USD",
-    "status": "captured",
-    "created_at": "2025-11-19T14:13:03.327616+05:30",
-    "paid_at": "2025-11-19T14:13:03.327616+05:30"
-  },
-  {
-    "id": "762e94f6-487a-487e-9b97-6ac06ff54c49",
-    "user_id": "35ad0677-1a54-40d4-8b3a-1995d475615e",
-    "request_id": "c1e91b13-d932-4775-a822-588df6b5050c",
-    "amount_usd": 9000.0,
-    "currency": "USD",
-    "status": "captured",
-    "created_at": "2025-11-19T14:22:24.133365+05:30",
-    "paid_at": "2025-11-19T14:22:24.133365+05:30"
-  }
+  
 ]
