@@ -151,10 +151,3 @@ Result: happy, strong memories cleanse toxicity; bitter memories worsen it.
 2. `_persist_organism_state` always rebuilds full organism state before writing to disk.
 3. The frontend and admin dashboards query `/organism/state`, `/dreams`, `/memories`, etc., to display current metrics.
 4. Tunable rules live in `config.py`; change them here to rebalance behaviours without hunting through logic.
-
-## Extending the System
-
-- When adding new state fields, include them in `DEFAULT_ORGANISM_STATE`, updates to `_rebuild_organism_state`, and adjust the documentation above.
-- New dream categories must be added to `_select_dream_category`, `_apply_dream_impacts`, and the allowed set.
-- For additional memory effects, extend `MEMORY_RULES` and update `record_memory_log` accordingly.
-- Always run unit/API tests after changing the balancing constants to ensure numerical stability.
