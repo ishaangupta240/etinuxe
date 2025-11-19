@@ -152,5 +152,3 @@ Each transition updates `user.updated_at`, ensuring the frontend can resume onbo
 - Partial consumption splits tokens, leaving residual balances available for future use.
 
 ---
-
-Use this document as the single reference when adjusting business logic or verifying calculations during QA.
